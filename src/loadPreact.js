@@ -1,6 +1,6 @@
 import { h, render, Component } from 'preact';
 
-class Controls extends Component {
+class Create extends Component {
   constructor(props) {
     super(props);
 
@@ -114,7 +114,29 @@ class Controls extends Component {
   }
 }
 
-window.setupUI = (el, state, actions) => render(<Controls state={state} actions={actions} />, el);
+class Controls extends Component {
+  render({state, actions}) {
+    return (
+      <save>
+        <button onClick={actions['restart']}>Restart</button>
+        <button onClick={() => console.log(state.eventLog)}>Save System</button>
+      </save>
+    );
+  }
+}
+
+class UI extends Component {
+  render({state, actions}) {
+    return (
+      <ui>
+        <Controls state={state} actions={actions} />
+        <Create state={state} actions={actions} />
+      </ui>
+    );
+  }
+}
+
+window.setupUI = (el, state, actions) => render(<UI state={state} actions={actions} />, el);
 
         // <!-- <position>
         //   <label>Position: </label>

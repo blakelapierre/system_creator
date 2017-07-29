@@ -220,19 +220,52 @@
       'sideview': [-1, 0, 0]
     };
 
+    function createUniverse(existingMasses) {
+      const universe = [...existingMasses],
+            events = [],
+            uievents = [];
+
+      const [
+        positions,
+        velocities,
+        accelerations,
+        gravities,
+        masses,
+        sizes,
+        colors
+      ] = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
+
+      function map(list, properties) {
+        return properties.map(p => list.map(item => item[p]));
+      }
+
+      return {universe, events, uievents, positions, velocities, accelerations, gravities, masses, sizes, colors};
+    }
 
     const sun = new Mass(1000000, [255, 255, 0, 255]),
-          universe = [sun],
-          tweets = [],
+    {
+      universe,
+      events,
+      uievents,
+
+      positions,
+      velocities,
+      accelerations,
+      gravities,
+      masses,
+      sizes,
+      colors
+    } = createUniverse([sun])
+
+
+    const tweets = [],
           tweetMap = {},
           tweetSpawn = [],
           spawningTweets = new Set(),
           media = [],
           observers = [],
           emissions = [],
-          boostings = [],
-          events = [],
-          uievents = [];
+          boostings = [];
 
     const state = {
         universe,
@@ -254,19 +287,19 @@
 
     const vBoost = 10;
 
-    const [
-      positions,
-      velocities,
-      accelerations,
-      gravities,
-      masses,
-      sizes,
-      colors
-    ] = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
+    // const [
+    //   positions,
+    //   velocities,
+    //   accelerations,
+    //   gravities,
+    //   masses,
+    //   sizes,
+    //   colors
+    // ] = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
 
-    function map(list, properties) {
-      return properties.map(p => list.map(item => item[p]));
-    }
+    // function map(list, properties) {
+    //   return properties.map(p => list.map(item => item[p]));
+    // }
 
 
 
@@ -1053,7 +1086,14 @@
 
       window.requestAnimationFrame(animate);
 
-      setupUI(document.getElementsByTagName('ui')[0], 'state', {create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}])});
+      setupUI(
+        document.getElementsByTagName('ui')[0],
+        state,
+        {
+          create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}]),
+          restart: () => console.log('should restart')
+        }
+      );
 
       function runner(state, clock, maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
         const {startTime} = clock;
@@ -1151,8 +1191,6 @@
 
       function animate() {
         run();
-
-        // state.uieventLog.push([currentTick, uievents.slice()]);
 
         for (let i = 0; i < uievents.length; i++) {
           const event = uievents[i];
