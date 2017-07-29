@@ -6,19 +6,21 @@ module Lib
     ) where
 
 
-import Prelude hiding (getContents, hGet, interact, scanl, foldl)
+import Prelude hiding (getContents, hGet, interact, scanl, foldl, concat, putStr)
 
 import Control.Concurrent (forkIO, newMVar, putMVar, readMVar, takeMVar, MVar)
 import Control.Concurrent.Chan.Unagi (InChan, getChanContents, newChan, readChan, dupChan, writeChan, writeList2Chan)
+import Control.Concurrent.Timer (repeatedTimer)
+import Control.Concurrent.Suspend.Lifted (msDelay)
 import Control.Exception
 import Control.Monad (forever, when)
-import Data.ByteString.Lazy (ByteString, empty, fromStrict, foldl, foldrChunks, getContents, hGet, interact, pack, scanl, toChunks, toStrict, unpack)
+import Data.ByteString.Lazy (ByteString, empty, concat, fromChunks, fromStrict, foldl, foldrChunks, getContents, putStr, hGet, interact, pack, scanl, toChunks, toStrict, unpack)
 import Data.ByteString.Lazy.Builder (intDec, stringUtf8, toLazyByteString)
 import Data.Either
 import Data.Monoid (Monoid, mappend)
-import Network.Wai.Handler.Warp (run, runSettings, setOnException, setOnClose, setOnOpen, setPort, defaultSettings)
+import Network.Wai.Handler.Warp (run, runSettings, setBeforeMainLoop, setLogger, setOnException, setOnClose, setOnOpen, setPort, defaultSettings)
 import Network.Wai.Handler.WebSockets as WaiWS
-import Network.WebSockets (acceptRequest, receiveDataMessage, sendTextData, PendingConnection, defaultConnectionOptions, DataMessage(..))
+import Network.WebSockets (acceptRequest, receiveData, receiveDataMessage, fromLazyByteString, send, sendTextData, PendingConnection, defaultConnectionOptions, DataMessage(..))
 
 import System.IO (hSetBuffering, isEOF, stdin, BufferMode( NoBuffering ))
 
@@ -33,17 +35,29 @@ handleWS bcast connectionCount pending = do
 
     count <- readMVar connectionCount
 
-    sendTextData connection (toLazyByteString $ stringUtf8 "o," <> (intDec count))
+    -- sendTextData connection (toLazyByteString $ stringUtf8 "o," <> (intDec count))
 
-    _ <- forkIO $ forever $ do
-        message <- readChan localChan
-        sendTextData connection message
+    contents <- getChanContents localChan
+
+    _ <- forkIO $ do
+      foldr (\a b -> sendTextData connection a >> b) (return ()) contents
+
+    -- broadcast ?
+    -- message <- receiveData connection
+    -- _ <- forkIO $ do
+    --   -- writeChan bcast message
+    --   putStr message
+
+    -- return ()
+    -- _ <- forkIO $ forever $ do
+    --     message <- readChan localChan
+    --     sendTextData connection message
 
     -- loop forever
     let loop = do
-            Text message <- receiveDataMessage connection
-            writeChan bcast message
-            loop
+          Text message <- receiveDataMessage connection
+          -- writeChan bcast message
+          loop
 
     loop
 
@@ -64,12 +78,15 @@ start = do
 
     connectionCount <- newMVar 0
 
+    repeatedTimer (printStats connectionCount) (msDelay 1000)
     -- run 8080 (WaiWS.websocketsOr defaultConnectionOptions (handleWS bcast connectionCount) undefined)
 
-    runSettings ((
-      setOnOpen (openHandler connectionCount bcast)
+    runSettings (
+      ( setOnOpen (openHandler connectionCount bcast)
       . setOnClose (closeHandler connectionCount bcast)
-      . setOnException (\_ e -> print ("Exception" ++ show e))
+      . setOnException (\_ e -> putStrLn ("Exception: " ++ show e))
+      . setBeforeMainLoop (putStrLn "Listening")
+      . setLogger logger
       . setPort 8080) defaultSettings)
       $ WaiWS.websocketsOr defaultConnectionOptions (handleWS bcast connectionCount) undefined
 
@@ -78,12 +95,19 @@ start = do
           count <- takeMVar connectionCount
           putMVar connectionCount (count - 1)
 
-          writeChan bcast (toLazyByteString $ stringUtf8 "o-," <> (intDec (count - 1)))
+          -- writeChan bcast (toLazyByteString $ stringUtf8 "o-," <> (intDec (count - 1)))
 
         openHandler connectionCount bcast addr = do
           count <- takeMVar connectionCount
           putMVar connectionCount (count + 1)
 
-          writeChan bcast (toLazyByteString $ stringUtf8 "o," <> (intDec (count + 1)))
+          -- writeChan bcast (toLazyByteString $ stringUtf8 "o," <> (intDec (count + 1)))
 
           return True
+
+        printStats connectionCount = do
+          count <- readMVar connectionCount
+          print count
+
+        logger request status fileSize = do
+          putStrLn "does nothing"

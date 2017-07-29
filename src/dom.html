@@ -46,6 +46,22 @@
       document.body.removeEventListener('touchstart', goFullScreen);
     }
 
+    let x = 1;
+    document.body.addEventListener('wheel', event => {
+      camera.followDistance += event.deltaY > 0 ? x : -x;
+      camera.followDistance = Math.max(0, camera.followDistance);
+    });
+
+    // document.body.addEventListener('mousemove', ({clientX, clientY}) => {
+    //   const width = document.body.clientWidth,
+    //         height = document.body.clientHeight,
+    //         x = clientX / width - 0.5,
+    //         y = clientY / height - 0.5;
+
+    //   // set(camera.targetOffset, x, y, 0);
+    //   set(camera.targetLocalRotation, x * 2, y * 2, 1);
+    // });
+
 
     const hud = document.querySelector('hud'),
           enterLookingEl = document.querySelector('enter-looking'),
@@ -53,34 +69,38 @@
           lookingEl = document.querySelector('looking'),
           movingEl = document.querySelector('moving');
 
-    enterLookingEl.addEventListener('click', event => enterState('looking'));
-    enterMovingEl.addEventListener('click', event => enterState('moving'));
+    enterLookingEl.addEventListener('click', event => console.log('go looking') & enterState('looking'));
+    enterMovingEl.addEventListener('click', event => console.log('go moving') & enterState('moving'));
 
     // const states = {looking, moving};
     let currentState, controls;
 
     function enterState(state) {
+      console.log('entering', state);
       if (currentState) hud.classList.remove(currentState);
 
       hud.classList.add(state);
 
       if (state === 'moving') {
-        camera.targetOffset = [0, 0, 0];
+        camera.targetOffset = [0, 0, 1];
+        camera.followDistance = 70;
         camera.targetFov = 100;
-
-        // universe[camera.positionIndex].color[3] = 0.25;
 
         controls = attachVelocityControls();
       }
       else if (state === 'looking') {
-        camera.targetOffset = [0, 50, 0];
+        camera.targetLocalRotation = [0, Math.PI / 5, 0];
+        camera.targetOffset = [0, 1, 1];
+        camera.followDistance = 30;
         camera.targetFov = 60;
 
         detachVelocityControls(controls);
       }
       else if (state === 'start') {
-        camera.targetOffset = [0, 70, 0];
-        camera.targetFov = 90;
+        camera.targetLocalRotation = [0, Math.PI / 3, 0];
+        camera.targetOffset = [0, 1, 1];
+        camera.followDistance = 100;
+        camera.targetFov = 110;
 
         detachVelocityControls(controls);
       }
@@ -92,12 +112,10 @@
       return ['xn', 'xp', 'yn', 'yp', 'zn', 'zp'].map(n => {
         const el = document.querySelector(n);
 
-        // el.onclick = event => {
-        //   events.push([n]);
-        //   event.stopPropagation();
-        // };
+        console.log('attaching on', n);
 
         el.onmousedown = event => {
+          console.log(n);
           events.push([`+${n}`]);
           event.stopPropagation();
         };
@@ -107,27 +125,28 @@
           event.stopPropagation();
         };
 
-        // el.addEventListener('click', event => {
-        //   events.push([n]);
-        //   event.stopPropagation();
-        // });
+        el.onclick = event => {
+          event.stopPropagation();
+        };
 
         return el;
       });
     }
 
     function detachVelocityControls(controls) {
-      (controls || []).forEach(c => c.onclick = undefined);
+      (controls || []).forEach(c => c.onmousedown = c.onmouseup = c.onclick = undefined);
     }
 
     const velocityControlsEl = document.querySelector('velocity-controls'),
           movingTriggerEl = document.querySelector('moving-trigger');
 
     movingEl.addEventListener('click', event => {
+      console.log('moving to start');
       enterState('start');
     });
 
     lookingEl.addEventListener('click', event => {
+      console.log('looking to start');
       enterState('start');
     });
 
@@ -144,6 +163,7 @@
           lookAtTrumpDistanceQuantityEl = document.querySelector('look-at-trump-distance-quantity'),
           massQuantityEl = document.querySelector('mass-quantity'),
           massVelocityQuantityEl = document.querySelector('mass-velocity-quantity'),
+          massAccelerationQuantityEl = document.querySelector('mass-acceleration-quantity'),
           distanceQuantityEl = document.querySelector('distance-quantity'),
           catchUpQuantityEl = document.querySelector('catch-up-quantity'),
           soulsQuantityEl = document.querySelector('souls-quantity'),
@@ -154,7 +174,8 @@
           absorbedByEl = document.querySelector('absorbed-by'),
           absorbedByByNameEl = document.querySelector('absorbed-by-by-name'),
           poofEl = document.querySelector('poof'),
-          noticeEl = document.querySelector('notice');
+          noticeEl = document.querySelector('notice'),
+          stateEl = document.querySelector('state');
 
     const tagEl = document.querySelector('tag'),
           currentLookAtEl = document.querySelector('current-look-at'),
@@ -170,7 +191,7 @@
       return copy([0, 0, 0], v);
     }
 
-    const speed = 60;
+    const speed = 60 * 2;
     class Camera {
       constructor({follow, lookAt}) {
         this.follow = follow;
@@ -178,38 +199,42 @@
 
         this._targetPosition = [0, 0, 0];
         this._targetLookAt = [0, 0, 0];
-        this._targetOffset = [0, 70, 0];
+        this._targetOffset = [0, 1, 0];
         this._targetUp = [0, 0, 0];
         this._targetFov = 90;
+        this._targetFollowDistance = 70;
+        this._targetLocalRotation = [0, 0, 0];
 
         this._li = 0;
         this._pi = 0;
         this._oi = 0;
         this._fi = 0;
+        this._fdi = 0;
+        this._lri = 0;
 
         this.observed = {
           position: vnew(this._targetPosition),
           lookAt: vnew(this._targetLookAt),
           up: vnew(this._targetUp),
           fov: this._targetFov
-        }
+        };
 
         this.offset = vnew(this._targetOffset);
-        // this.position = copy([0, 0, 0], this._targetPosition);
-        // this.lookAt = copy([0, 0, 0], this._targetLookAt);
-        // this.up = [0, 0, 0];
-        // this.fov = 90;
+        this.followDistance = this._targetFollowDistance;
+        this.localRotation = vnew(this._targetLocalRotation);
       }
 
       get iOffset() { return add(dd, this.offset, scale(dd, sub(dd, this._targetOffset, this.offset), Math.min(this._oi, speed) / speed)); }
       get iPosition() { return ;}
 
+      get iFollowDistance() { return this.followDistance + (this.followDistance - this._targetFollowDistance) / (Math.min(this._fdi, speed) / speed); }
+
+      get iLocalRotation() { return add(dd, this.localRotation, scale(dd, sub(dd, this._targetLocalRotation, this.localRotation), Math.min(this._lri, speed) / speed)); }
+
       update() {
         const p = this.follow.position,
-              // tp = universe[this.lookAtIndex].position,
               tp = this.lookAt.position,
-              d = sub([0, 0, 0], p, tp),
-              // d = [p[0]-tp[0], p[1]-tp[1], p[2]-tp[2]],
+              d = sub([0, 0, 0], tp, p),
               m = magnitude(d);
 
         if (m > 0) div (d, d, m);
@@ -217,17 +242,57 @@
         // copy(this.position, this.iPosition);
         // copy(this.lookAt, this.iLookAt);
         copy(this.offset, this.iOffset);
+        copy(this.localRotation, this.iLocalRotation);
         // copy(this.up, this.iUp);
 
-        // this._li++;
-        // this._pi++;
+        this._li++;
+        this._pi++;
         this._oi++;
-        // this._fi++;
+        this._fdi++;
+        this._lri++;
+        this._fi++;
 
-        // add(this.offset, this.offset, scale(dd, sub(dd, this._targetOffset, this.offset), Math.min(this._oi++, speed) / speed));
-// console.log(this.offset);
-        add(this._targetPosition, p, scale(d, d, 100));
-        add(this._targetPosition, this._targetPosition, this.offset);
+        const q = qFromVectors2([0, 0, -1], d),
+              r = [0, 0, 0, 0],
+              i = qinv([0, 0, 0, 0], q);
+
+        const rotation = [Math.sin(this.localRotation[0]), Math.sin(this.localRotation[1]), Math.cos(this.localRotation[0]) + Math.cos(this.localRotation[1])],
+              rm = magnitude(rotation) || 1;
+
+        qmult(r, qmult(r, q, [0, rotation[0], rotation[1], rotation[2]]), qconj(i, q));
+        // qmult(r, qmult(r, qconj(i, q), [0, rotation[0] / rm, rotation[1] / rm, rotation[2] / rm]), q);
+        // qmult(r, qconj(i, q), qmult(r, [0, rotation[0] / rm, rotation[1] / rm, rotation[2] / rm], q));
+
+        qunit(r, r);
+
+        // console.log(r, d);
+
+        set(d, r[1], r[2], r[3]);
+        // add(d, p, d);
+        // sub(d, d, p);
+
+
+        // sub(dd, normalize(d, d), normalize(dd, p));
+
+        const om = magnitude(this.offset) || 1;
+
+        const q2 = qFromVectors2([0, 0, 1], vnew(d)),
+              r2 = [0, 0, 0, 0],
+              i2 = qinv([0, 0, 0, 0], q2);
+
+        qunit(q2, q2);
+
+        // // not right!
+        qmult(r2, qmult(r2, q2, [0, this.offset[0] / om, this.offset[1] / om, this.offset[2] / om]), qconj(i2, q2));
+        // // qmult(r2, qmult(r2, qconj(i, q2), [0, this.offset[0] / om, this.offset[1] / om, this.offset[2] / om]), q2);
+
+        qunit(r2, r2);
+
+        add(d, d, [r2[1], r2[2], r2[3]]);
+
+        add(this._targetPosition, p, scale(d, normalize(d, d), this.iFollowDistance));
+        // add(this._targetPosition, this._targetPosition, this.offset);
+        // add(this._targetPosition, scale(dd, normalize(dd, sub(dd, this._targetPosition, this.offset)), this.followDistance));
 
         add(this.observed.position, this.observed.position, scale(dd, sub(dd, this.observed.position, this._targetPosition), -Math.min(this._pi++, speed) / speed));
 
@@ -236,32 +301,25 @@
         this.observed.fov = this.observed.fov + (this._targetFov - this.observed.fov) * Math.min(this._fi++, speed) / speed;
 
 
-        // const q = qFromVectors(sub(dd, this.observed.position, this.observed.lookAt), this.observed.lookAt);
-        // const q = qFromVectors([0, 1, 0], sub(dd, this.observed.position, this.observed.lookAt));
-        // const q = qFromVectors([0, 0, 1], sub(dd, this.observed.lookAt, this.observed.position));
-        const q = qFromUnitVectors([0, 0, 1], normalize(dd, sub(dd, this.observed.position, this.observed.lookAt)));
-        // qunit(q, q);
-// set(this.up, q[1], q[2], q[3]);
-        const r = [0, 0, 0, 0],
-              i = qinv([0, 0, 0, 0], q);
+        // const q = qFromUnitVectors([0, 0, 1], normalize(dd, sub(dd, this.observed.position, this.observed.lookAt)));
+        // const q = qFromUnitVectors(this.localRotation, normalize(dd, sub(dd, this.observed.position, this.observed.lookAt)));
+        // const r = [0, 0, 0, 0],
+        //       i = qinv([0, 0, 0, 0], q);
 
-              // console.log(q);
+        // qmult(r, qmult(r, q, [0, this.offset[0], this.offset[1], this.offset[2]]), qconj(i, q));
 
-        // qmult(r, qmult(r, q, [0, 0, 0, -1]), i);
-        qmult(r, qmult(r, q, [0, this.offset[0], this.offset[1], this.offset[2]]), qconj(i, q));
+        // qmult(r, qmult(r, q, [0, 0, 1, 0]), i);
 
-        // add(this.observed.position, this.observed.position, [r[1], r[2], r[3]]);
-
-        qmult(r, qmult(r, q, [0, 0, 1, 0]), i);
-
-        // qunit(r, r);
-        // set(this.up, 0, 1, 0);
         set(this.observed.up, 0, 1, 0);
-        // set(this.up, r[1], r[2], r[3]);
-        // cross(this.up, [0, 1, 0], [-r[1], -r[2], -r[3]]);
-        // cross(this.up, tp, this.target.velocity]);
-        // set(this.up, -r[1], -r[2], -r[3]);
-        // console.log(this.up, this.offset);
+
+        copy(this.observed.lookAt, p);
+
+        // console.log(this.observed.position, r);
+
+        // cross(this.observed.up, [0, 0, 1], sub(dd, this.observed.position, tp))
+        // cross(this.observed.up, this.observed.up, sub([0, 0, 0, 0], this.observed.position, this.observed.lookAt));
+
+        // cross(this.observed.up, sub(dd, p, tp), sub([0, 0, 0], this.observed.position, this.observed.lookAt));
       }
 
       set lookAt (mass) { console.log('now looking at', mass); if (!mass) throw new Error('looking at nothing!'); this._lookAtMass = mass; this._li = 0; }
@@ -302,6 +360,21 @@
       }
 
       get targetOffset() { return this._targetOffset; }
+
+      set targetLocalRotation([x, y, z]) {
+        if (this._targetLocalRotation[0] !== x || this._targetLocalRotation[1] !== y || this._targetLocalRotation[2] !== z) this._lri = 0;
+        set(this._targetLocalRotation, x, y, z);
+      }
+
+      get targetLocalRotation() { return this._targetLocalRotation; }
+
+      set followDistance(d) {
+        if (this._targetFollowDistance != d) this._fdi = 0;
+        this._targetFollowDistance = d;
+        console.log('set follow', d);
+      }
+
+      get followDistance() { return this._targetFollowDistance; }
     }
 
     class Mass {
@@ -313,6 +386,8 @@
         this.velocity = velocity;
         this.acceleration = acceleration;
         this.gravity = gravity;
+        this.boost = [0, 0, 0];
+        this.emissionCounter = 0;
         this.collisions = [];
       }
 
@@ -339,9 +414,6 @@
         } = this;
 
         add(v, v, div(dd, add(dd, a, g), ticksPerStep));
-        // v[0] += (a[0] + g[0]) / ticksPerStep;
-        // v[1] += (a[1] + g[1]) / ticksPerStep;
-        // v[2] += (a[2] + g[2]) / ticksPerStep;
       }
     }
 
@@ -459,6 +531,7 @@
       '-zp': event => unsetBoost(0, 0, vBoost),
 
       // internal
+      'emission': emission,
       'absorbed': absorbed,
       'oldTweets': addOldTweets,
       'poof': poof
@@ -479,9 +552,9 @@
     };
 
     const views = {
-      'overview': [0, 2500, 0],
-      'frontview': [0, 0, 3500],
-      'sideview': [-3500, 0, 0]
+      'overview': [0, 1, 0],
+      'frontview': [0, 0, 1],
+      'sideview': [-1, 0, 0]
     };
 
 
@@ -494,6 +567,7 @@
           media = [],
           observers = [],
           emissions = [],
+          boostings = [],
           events = [['oldTweets']],
           uievents = [];
 
@@ -507,6 +581,9 @@
           MAX_OBSERVERS = 51,
           MAX_TWEET_SPAWN_AGE = 60 * 5,
           MAX_EMISSION_AGE = 60 * 5;
+
+    const EMISSION_RATE = 10,
+          EMISSION_SCALE_FACTOR = 5;
 
     const vBoost = 10;
 
@@ -550,8 +627,6 @@
 
     let totalObserverCount = 0;
     function addObserver([_, totalConnected]) {
-      // if (observers.length === 0) camera.positionIndex = universe.length;
-
       if (observers.length < MAX_OBSERVERS) {
         const {position: tp, velocity: tv} = trump;
         const observer = addMass(new Observer(1, COLORS.observer, ORBIT_PARAMETERS.observer.p(tp, tv), ORBIT_PARAMETERS.observer.v(tp, tv)));
@@ -585,7 +660,6 @@
     }
 
     function addTweet(event) {
-      // camera.lookAtIndex = universe.length;
       // this should be calculated based on current trump mass (and, maybe, positions/velocities of orbiting masses?)
       const {position: tp, velocity: tv} = trump;
 
@@ -651,6 +725,18 @@
       pendingTweetSpawn--;
     }
 
+    function emission ([_, mass, emissionDirection]) {
+      const {position: p, velocity: v} = mass;
+
+      const emission = mass.mass * 0.01 / ticksPerStep;
+
+      scale(dd, emissionDirection, mass.collisionSize[0] / 30); // why does this need ~30 here?
+
+      const e = addMass(new Emission(emission, COLORS.observer, add([0, 0, 0], mass.position, dd), add([0, 0, 0], newv(mass.velocity), scale(dd, dd, EMISSION_SCALE_FACTOR))));
+
+      emissions.push(e);
+    }
+
     function absorbed(event) {
       uievents.push(event);
     }
@@ -698,76 +784,36 @@
         uievents.push(['poof', mass]);
         enterState('looking') // get camera out of here!
       }
-
-      // if (camera.positionIndex >= index && camera.positionIndex > 0) {
-      //   if (camera.positionIndex === index) {
-      //     camera.positionIndex = positions.length - 1;
-      //     uievents.push(['poof', mass])
-      //     enterState('looking'); // what?!
-      //   }
-      //   else camera.positionIndex--;
-      // }
-      // if (camera.lookAtIndex >= index) {
-      //   previousLookAt();
-      // }
     }
 
-    function setBoost(mass, x, y, z) {
+    function setBoost(x = 0, y = 0, z = 0) {
+      console.log('setBoost', x, y, z);
+      const mass = camera.follow,
+            {boost} = mass;
 
+      add(boost, boost, [x, y, z]);
+
+      console.log(boost);
+
+      if (boostings.indexOf(mass) === -1) boostings.push(mass); // more efficient way?
     }
 
-    function unsetBoost(mass, x, y, z) {
-      // sub(mass.boost,
+    function unsetBoost(x = 0, y = 0, z = 0) {
+      console.log('unsetBoost', x, y, z);
+      const mass = camera.follow,
+            {acceleration, boost} = mass;
+
+      set(acceleration, 0, 0, 0);
+      sub(boost, boost, [x, y, z]);
+
+      console.log(boost);
+
+      if (boost[0] === 0 && boost[1] === 0 && boost[2] === 0) {
+        console.log('removing');
+        const index = boostings.indexOf(mass);
+        if (index > -1) boostings.splice(index, 1);
+      }
     }
-
-    // x,y,z from camera/observer pov
-    function emitMass(x = 0, y = 0, z = 0) {
-      const mass = universe[camera.positionIndex],
-            {position: p, velocity: v} = mass,
-            tp = universe[camera.lookAtIndex].position,
-            d = normalize([0, 0, 0], sub(dd, p, tp));
-            // d = [p[0]-tp[0], p[1]-tp[1], p[2]-tp[2]];
-      const emission = mass.mass * 0.05;
-
-      // sub(d, p, tp);
-            // m = magnitude(d);
-            // m = magnitude(d) || 1;
-
-      const u = [0, 0, 1];
-
-      const q = qFromUnitVectors(u, d);
-
-      // qunit(q, q);
-
-      const r = [0, 0, 0, 0],
-            i = qinv([0, 0, 0, 0], q);
-
-      qmult(r, qmult(r, q, [0, x, y, z - 1]), qconj(i, q));
-
-      add(v, v, [r[1], r[2], r[3]]);
-
-      const emissionVelocity = [-r[1], -r[2], -r[3]];
-
-      qunit(r, r);
-      // scale(dd, [-r[1], -r[2], -r[3]], (mass.mass + emission + 1) / 2);
-      scale(dd, emissionVelocity, mass.collisionSize[0] / 200); // why does this need ~200 here?
-
-      mass.mass -= emission;
-
-      // const e = addMass(new Emission(emission, COLORS.observer, add([0, 0, 0], mass.position, dd), add([0, 0, 0], mass.velocity, emissionVelocity)));
-      const e = addMass(new Emission(emission, COLORS.observer, add([0, 0, 0], mass.position, dd), [0, 0, 0]));
-
-      emissions.push(e);
-
-      if (mass.mass < 0.01) events.push(['poof', mass, i]);
-    }
-
-
-
-
-
-
-
 
 
     let trumpScaleFactor = 5;
@@ -820,7 +866,7 @@
     let collisionIIndex = 0;
 
     let /*ticksPerSecond = 60,*/
-        ticksPerStep = 30,
+        ticksPerStep = 60,
         stepsPerSecond = 1;
 
 
@@ -828,13 +874,45 @@
     function tick() {
       currentTick++;
 
+      updateBoosts();
       updateEmissions();
       updateTweetSpawn();
       positionHalfTick();
       updateGravities();
-      universe.forEach(updateMassVelocityAndPartialPosition);
-      // updateVelocities();
+      updateVelocities();
       resolveCollisions();
+
+      function updateBoosts() {
+        boostings.forEach(mass => {
+          const {boost, position: p, velocity: v} = mass,
+                tp = camera.lookAt.position,
+                d = normalize([0, 0, 0], sub(dd, p, tp)),
+                [x, y, z] = boost;
+
+          const u = [0, 0, 1];
+
+          const q = qFromUnitVectors(u, d);
+
+          const r = [0, 0, 0, 0],
+                i = qinv([0, 0, 0, 0], q);
+
+          qmult(r, qmult(r, q, [0, x, y, z]), qconj(i, q));
+
+          qunit(r, r);
+
+          // r seems to not be right here in some cases
+
+          if (mass.emissionCounter++ % EMISSION_RATE === 0) events.push(['emission', mass, [-r[1], -r[2], -r[3]]]);
+
+          scale(dd, [r[1], r[2], r[3]], EMISSION_SCALE_FACTOR * mass.mass / 2);
+
+          copy(mass.acceleration, dd);
+
+          mass.mass -= mass.mass * 0.01 / ticksPerStep;
+
+          if (mass.mass < 0.01) events.push(['poof', mass, i]);
+        });
+      }
 
       function updateEmissions() {
         for (let i = emissions.length - 1; i >= 0; i--) {
@@ -854,21 +932,9 @@
             colors.splice(index, 1);
 
             if (camera.follow === emission) {
-                uievents.push(['poof', emission]);
-                enterState('looking'); // what?!
+              uievents.push(['poof', emission]);
+              enterState('looking'); // what?!
             }
-
-            // if (camera.positionIndex >= index && camera.positionIndex > 0) {
-            //   if (camera.positionIndex === index) {
-            //     camera.positionIndex = positions.length - 1;
-            //     uievents.push(['poof', emission]);
-            //     enterState('looking'); // what?!
-            //   }
-            //   else camera.positionIndex--;
-            // }
-            // if (camera.lookAtIndex >= index) {
-            //   previousLookAt();
-            // }
           }
         }
       }
@@ -952,12 +1018,7 @@
           collisions
         } = universe[i];
 
-        // if (futureCollision) {
-        //   collisionList.push(futureCollision);
-        // }
-
-        for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions); // probably don't want to create a new object on every call?   ??!?!?!?
-        // for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, {futureCollision}); // probably don't want to create a new object on every call?   ??!?!?!?
+        for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions); //
 
         if (collisions.length > 0) {
           collisionList.push(collisions[0]);
@@ -981,42 +1042,54 @@
 
         sub(dd, p1, p2);
 
-        const t = -magnitude(dd) / (speedlimit * speedlimit),
+        const distance = magnitude(dd),
+              t = -distance / (speedlimit * speedlimit),
               o = t / ticksPerStep;
 
-        add(oldp1, p1, scale(dd, add(dd, v1, scale(dd, add(dd, v1, scale(dd, a1, o)), 0.5)), o));
-        add(oldp2, p2, scale(dd, add(dd, v2, scale(dd, add(dd, v2, scale(dd, a2, o)), 0.5)), o));
+        updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m1 * m2);
+
+        handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions);
+      }
+
+      function updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m) {
+        updatePosition(oldp1, o, a1, v1, p1);
+        updatePosition(oldp2, o, a2, v2, p2);
 
         sub(pv1, oldp1, p2);
         sub(pv2, oldp2, p1);
 
         const d1 = dot(pv1, pv1),
-              d2 = dot(pv2, pv2),
-              m = m1 * m2;
+              d2 = dot(pv2, pv2);
 
-        if (d1 > 0) add(g2, g2, scale(dd, pv1, m / d1));
-        if (d2 > 0) add(g1, g1, scale(dd, pv2, m / d2));
-
-        handleCollision(s1, s2, m1, m2, d1, d2, i, j, collisionList, collisions);
+        updateGravity(d1, pv1, g2, m);
+        updateGravity(d2, pv2, g1, m);
       }
 
-      function handleCollision(s1, s2, m1, m2, d1, d2, i, j, collisionList, collisions) {
+      function updatePosition(oldp, o, a, v, p) {
+        return add(oldp, p, scale(dd, add(dd, v, scale(dd, add(dd, v, scale(dd, a, o)), 0.5)), o));
+      }
+
+      function updateGravity(d, pv, g, m) {
+        if (d > 0) add(g, g, scale(dd, pv, m / d));
+      }
+
+      function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
         if (collisions.length === 0) {
-        // if (!collisions.futureCollision) {
-          const threshold = (s1[0] + s2[0]) / 4;
-          if (d1 < threshold || d2 < threshold) { // better ordering of checks?
+          const threshold = Math.sqrt(s1[0] + s2[0]) / 4;
+          if (distance < threshold) { // better ordering of checks?
             if (m1 <= m2) {
               //wtf is this
-              //the same universe[i] could be pushed multiple times!!!!!!!
-              // collisionList.push([universe[i], universe[j], i]);
               collisions.push([universe[i], universe[j], i, j]);
             }
             else {
               universe[j].collisions.push([universe[j], universe[i], j, i]);
-              // universe[j].futureCollision = [universe[j], universe[i], j];
             }
           }
         }
+      }
+
+      function updateVelocities() {
+        universe.forEach(updateMassVelocityAndPartialPosition);
       }
 
       function updateMassVelocityAndPartialPosition(mass) {
@@ -1079,19 +1152,6 @@
             uievents.push(['absorbedBy', greaterMass.name]);
             camera.follow = greaterMass;
           }
-
-          // if (camera.positionIndex >= smallerIndex && camera.positionIndex > 0) {
-          //   if (camera.positionIndex === smallerIndex) {
-          //     //should do this some other way?
-          //     uievents.push(['absorbedBy', greaterMass.name]);
-          //     camera.positionIndex = greaterIndex >= smallerIndex ? greaterIndex - 1 : greaterIndex;
-          //   }
-          //   // if (camera.positionIndex === smallerIndex) camera.positionIndex = positions.length - 1;
-          //   else camera.positionIndex--;
-          // }
-          // if (camera.lookAtIndex >= smallerIndex) {
-          //   previousLookAt();
-          // }
         }
 
         collisionList.splice(0);
@@ -1130,7 +1190,7 @@
 
       // const currentMass = universe[camera.positionIndex],
       const currentMass = camera.follow,
-            {mass, name, position, velocity} = currentMass;
+            {mass, name, position, velocity, acceleration} = currentMass;
 
       const distance = magnitude(sub(dd, currentMass.position, trump.position));
 
@@ -1140,6 +1200,7 @@
       massQuantityEl.innerHTML = mass.toFixed(2);
       distanceQuantityEl.innerHTML = distance.toFixed(1);
       massVelocityQuantityEl.innerHTML = `[${velocity[0].toFixed(1)}, ${velocity[1].toFixed(1)}, ${velocity[2].toFixed(1)}] ${magnitude(velocity).toFixed(1)}`;
+      massAccelerationQuantityEl.innerHTML = `[${acceleration[0].toFixed(1)}, ${acceleration[1].toFixed(1)}, ${acceleration[2].toFixed(1)}] ${magnitude(acceleration).toFixed(1)}`;
 
       const {totalSouls} = stats;
       soulsQuantityEl.innerHTML = `${totalSouls || 0} soul${totalSouls === 1 ? '' : 's'}`;
@@ -1229,9 +1290,21 @@
       }
     }
 
+    let given, needsStart;
+
+    stateEl.addEventListener('click', stateGiven);
+
+    setTimeout(stateGiven, 1000 * 60);
+
+    function stateGiven() {
+      given = true;
+      stateEl.classList.add('given');
+      noticeEl.classList.add('given');
+      if (needsStart) needsStart();
+    }
+
     tagEl.addEventListener('click', () => commandsEl.classList.toggle('show'));
     helpEl.addEventListener('click', () => helpContentEl.classList.toggle('show'));
-
 
     previousLookAtEl.addEventListener('click', event => {
       event.stopPropagation();
@@ -1288,14 +1361,15 @@
       editorPanel: false,
       plugins: ['core'],
       callback: start,
+      callback: jsxboxCallback,
       camera: {far: 1000000},
       controls: [
-        [['A'], 'left'],
-        [['D'], 'right'],
-        [['W'], 'forward'],
-        [['S'], 'backward'],
-        [['Q'], 'up'],
-        [['Z'], 'down'],
+        [['A'], '+left', '-left'],
+        [['D'], '+right', '-right'],
+        [['W'], '+forward', '-forward'],
+        [['S'], '+backward', '-backward'],
+        [['Q'], '+up', '-up'],
+        [['Z'], '+down', '-down'],
         [['H'], 'toggleHistory'],
         [['T'], 'fakeTweet'],
         [['R'], 'fakeRetweet'],
@@ -1314,12 +1388,18 @@
         [[219], 'prevMass']
       ],
       commands: {
-        'left': () => velocities[selectedMassIndex][0]--,
-        'right': () => velocities[selectedMassIndex][0]++,
-        'forward': () => velocities[selectedMassIndex][2]--,
-        'backward': () => velocities[selectedMassIndex][2]++,
-        'up': () => velocities[selectedMassIndex][1]++,
-        'down': () => velocities[selectedMassIndex][1]--,
+        '+left': repeat => !repeat ? setBoost(-vBoost) : undefined,
+        '-left': () => unsetBoost(-vBoost),
+        '+right': repeat => !repeat ? setBoost(vBoost) : undefined,
+        '-right': () => unsetBoost(vBoost),
+        '+forward': repeat => !repeat ? setBoost(0, 0, -vBoost) : undefined,
+        '-forward': () => unsetBoost(0, 0, -vBoost),
+        '+backward': repeat => !repeat ? setBoost(0, 0, vBoost) : undefined,
+        '-backward': () => unsetBoost(0, 0, vBoost),
+        '+up': repeat => !repeat ? setBoost(0, vBoost) : undefined,
+        '-up': () => unsetBoost(0, vBoost),
+        '+down': repeat => !repeat ? setBoost(0, -vBoost) : undefined,
+        '-down': () => unsetBoost(0, -vBoost),
         // 'lookAtTrump': () => camera.lookAtIndex = 0,
         // 'overview': () => {camera.lookAtIndex = 0; camera.positionIndex = 0; camera.targetOffset =  views.overview;},
         // 'frontview': () => {camera.lookAtIndex = 0; camera.positionIndex = 0; camera.targetOffset =  views.frontview;},
@@ -1456,10 +1536,18 @@
       }
     }
 
+    function jsxboxCallback(view) {
+      if (given) start(view); // global!!
+      else needsStart = () => start(view);
+    }
+
     function start(view) {
+      needsStart = undefined; // global!!
       const socket = createSocket(() => uievents.push(['connected']));
 
       const run = runner(universe, new Clock());
+
+      enterState('start');
 
       window.requestAnimationFrame(animate);
 
@@ -1605,39 +1693,64 @@
     }
 
     function createSocket(onopen = () => {}) {
-      // const socket = new WebSocket(`ws://${window.location.hostname}:8080`);
-      const socket = new WebSocket(`ws://104.236.242.248:8080`);
-      let opened;
-      socket.onopen = () => {
-        opened = true;
-        onopen();
-      };
+      try {
+        const socket = window.location.hostname === 'trumporb.it' ? new WebSocket(`ws://ws.trumporb.it:8080`) : new WebSocket(`ws://104.236.242.248:8080`);
+        let opened;
+        socket.onopen = () => {
+          opened = true;
+          resetReconnectTimer();
+          onopen();
+        };
 
-      socket.onmessage = (data, flags) => {
-        const parts = (data.data || '').split(',');
-        const name = parts[0];
+        socket.onmessage = (data, flags) => {
+          const parts = (data.data || '').split(',');
+          const name = parts[0];
 
-        switch (name) {
-          case 'r':
-            handle('retweet+', parts);
-            break;
-          case 't':
-            handle('tweet', parts);
-            break;
-          case 'o':
-            events.push(['observer+', parts[1]]);
-            break;
-          case 'o-':
-            events.push(['observer-', parts[1]]);
-            break;
-        }
-      };
+          switch (name) {
+            case 'r':
+              handle('retweet+', parts);
+              break;
+            case 't':
+              handle('tweet', parts);
+              break;
+            case 'o':
+              events.push(['observer+', parts[1]]);
+              break;
+            case 'o-':
+              events.push(['observer-', parts[1]]);
+              break;
+          }
+        };
 
-      socket.onclose = () => {
-        if (opened) window.location.reload();
-      };
+        socket.onclose = () => {
+          if (opened) window.location.reload();
+        };
 
-      return socket;
+        socket.onerror = event => {
+          console.log('error', event);
+
+          const waitTime = getReconnectTimer();
+          console.log(`attempting reconnect in ${waitTime} ms`);
+          setTimeout(() => createSocket(onopen), waitTime);
+        };
+
+        return socket;
+      }
+      catch (e) {
+        console.log('caught!', e);
+      }
+    }
+
+    let reconnectTimer = 1000;
+    function resetReconnectTimer() {
+      reconnectTimer = 1000;
+    }
+
+    function getReconnectTimer() {
+      const timer = reconnectTimer;
+      reconnectTimer *= 1.5;
+      reconnectTimer = Math.min(60 * 1000, reconnectTimer);
+      return timer;
     }
 
     function handle(name, parts) {
@@ -1651,6 +1764,9 @@
       events.push(['follower+', followers]);
     }
 
+    function newv (s) {
+      return copy([0, 0, 0], s);
+    }
 
     function set (r, x, y, z) {
       r[0] = x;
@@ -1720,14 +1836,54 @@
     function qFromVectors(u, v) {
       cross(dd, u, v);
       const q = [dot(u, v), dd[0], dd[1], dd[2]];
-      q[3] += qnorm(q);
+      q[0] += qnorm(q);
+      return qunit(q, q);
+    }
+
+    // http://web.archive.org/web/20161105145605/http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+    function qFromVectors2(u, v) {
+      const n = Math.sqrt(dot(u, u) * dot(v, v)),
+            r = n + dot(u, v);
+
+      if (r < 1e-6) { // why this value?!
+        console.log('small value', r);
+        if (Math.abs(dd[0]) > Math.abs(dd[2])) return qunit(q, [0, -dd[1], dd[2], 0]);
+        else return qunit(q, [0, 0, -dd[2], dd[1]]);
+      }
+      else {
+        cross(dd, u, v);
+        const q = [r, dd[0], dd[1], dd[2]];
+
+        return qunit(q, q);
+      }
+    }
+
+    function qFromUnitVectors2(u, v) {
+      const r = 1 + dot(u, v);
+
+      if (r < 1e-6) { // why this value?!
+        console.log('small value', r);
+        if (Math.abs(dd[0]) > Math.abs(dd[2])) return qunit(q, [0, -dd[1], dd[2], 0]);
+        else return qunit(q, [0, 0, -dd[2], dd[1]]);
+      }
+      else {
+        cross(dd, u, v);
+        const q = [r, dd[0], dd[1], dd[2]];
+
+        return qunit(q, q);
+      }
+    }
+
+    function qFromVectors2(u, v) {
+      cross(dd, u, v);
+      const q = [1 + dot(u, v), dd[0], dd[1], dd[2]];
       return qunit(q, q);
     }
 
     // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    function qFromUnitVectors(v, u) {
-      const m = Math.sqrt(2 + 2 * dot(v, u));
-      div(dd, cross(dd, v, u), m);
+    function qFromUnitVectors(u, v) {
+      const m = Math.sqrt(2 + 2 * dot(u, v));
+      div(dd, cross(dd, u, v), m);
       return [m/2, dd[0], dd[1], dd[2]];
     }
 
@@ -1794,8 +1950,7 @@
     }
 
     function qunit(r, q) {
-      const n = qnorm(q);
-      return qdiv(r, q, n);
+      return qdiv(r, q, qnorm(q));
     }
 
 
@@ -1860,7 +2015,8 @@
             </table>
             <table>
               <tbody>
-                <tr><td>Absolute (!) velocity:</td><td><mass-velocity-quantity></mass-velocity-quantity></td></tr>
+                <tr><td>V:</td><td><mass-velocity-quantity></mass-velocity-quantity></td></tr>
+                <tr><td>A:</td><td><mass-acceleration-quantity></mass-acceleration-quantity></td></tr>
               </tbody>
             </table>
           </data>
@@ -1928,8 +2084,17 @@
   </hud>
 </mathbox>
 
+<state>THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THIS SOFTWARE OR THE USE OR OTHER DEALINGS IN THIS
+SOFTWARE.</state>
+
 <notice>
   <screen></screen>
   <message>entering <trump>TRUMP</trump> orbit<message>
-  <statement>You are a brave soul</statement>
+  <standby>please standby</standby>
+  <failure>you are failing to connect</failure>
 </notice>
