@@ -231,7 +231,7 @@
           observers = [],
           emissions = [],
           boostings = [],
-          events = [['oldTweets']],
+          events = [],
           uievents = [];
 
     let oldTweets;
@@ -719,7 +719,8 @@
 
       function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
         if (collisions.length === 0) {
-          const threshold = Math.sqrt(s1 / 4 + s2 / 4) / 4;
+          // const threshold = Math.sqrt(s1 / 4 + s2 / 4) / 4;
+          const threshold = (s1 + s2) / 75;
           // const threshold = Math.sqrt(s1 / 8 + s2 / 8) / 8;
           // const threshold = s1[0] / 10 + s2[0] / 10;
           // const threshold = (s1[0] + s2[0]) / 2;
@@ -1064,7 +1065,7 @@ console.log('removing', smallerIndex);
 
       setupUI(document.getElementsByTagName('ui')[0], 'state', {create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}])});
 
-      function runner(universe, clock, maxRunTime = 1000 / 10, GUIUpdateRate = 100) {
+      function runner(universe, clock, maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
         const {startTime} = clock;
 
         let currentTick = 0,
