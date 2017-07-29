@@ -1,40 +1,6 @@
 <mathbox tabindex="2">
   <script type="mathbox/jsx">
-    const trumpColors = [[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.00392,0.83137,0.8,1],[1.24706,0.97255,0.76078,1],[1.40392,1.11373,0.78431,1],[1.4902,1.21569,0.87059,1],[1.52941,1.26275,0.94118,1],[1.41961,1.19216,0.91765,1],[1.40392,1.21569,0.98039,1],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0.94118,0.75294,0.77647,1],[1.30196,0.94118,0.61961,1],[1.41961,1.01961,0.63529,1],[1.41961,1.08235,0.73725,1],[1.41961,1.1451,0.80784,1],[1.45098,1.20784,0.91765,1],[1.4902,1.28627,1.01961,1],[1.48235,1.26275,0.98824,1],[1.47451,1.21569,0.92549,1],[1.43529,1.19216,0.88627,1],[1.46667,1.26275,0.97255,1],[1.48235,1.30196,1.05098,1],[1.34118,1.2549,1.17647,1],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.22353,0.86275,0.57255,1],[1.35686,0.94902,0.58039,1],[1.36471,0.95686,0.61176,1],[1.40392,1.03529,0.69804,1],[1.38824,1.10588,0.79216,1],[1.41176,1.17647,0.87843,1],[1.44314,1.19216,0.92549,1],[1.41961,1.16863,0.90196,1],[1.41961,1.11373,0.80784,1],[1.40392,1.06667,0.75294,1],[1.35686,1.06667,0.75294,1],[1.32549,1.01176,0.6902,1],[1.35686,1.0902,0.80784,1],[1.44314,1.23137,1.01961,1],[1.23137,1.09804,1.05098,1],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.1451,0.76863,0.47059,1],[1.32549,0.93333,0.54902,1],[1.34118,0.93333,0.54902,1],[1.34902,0.91765,0.54902,1],[1.38039,1.02745,0.70588,1],[1.36471,1.07451,0.77647,1],[1.33333,1.02745,0.71373,1],[1.3098,0.94902,0.63529,1],[1.33333,1.00392,0.69804,1],[1.36471,0.98039,0.68235,1],[1.34118,0.93333,0.63529,1],[1.32549,0.92549,0.61961,1],[1.35686,0.98824,0.6902,1],[1.38824,1.05098,0.76863,1],[1.46667,1.23922,1.01961,1],[1.42745,1.23137,1.03529,1],[1.12157,1.04314,1.04314,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.0902,0.71373,0.44706,1],[1.23137,0.80784,0.46275,1],[1.34902,0.91765,0.53333,1],[1.34118,0.91765,0.52549,1],[1.35686,0.95686,0.56471,1],[1.40392,1.05098,0.70588,1],[1.32549,0.95686,0.62745,1],[1.20784,0.79216,0.46275,1],[1.21569,0.80784,0.49412,1],[1.24706,0.83137,0.48627,1],[1.27843,0.84706,0.54118,1],[1.29412,0.83922,0.52549,1],[1.31765,0.86275,0.54118,1],[1.38824,0.96471,0.65882,1],[1.45098,1.09804,0.82353,1],[1.48235,1.16863,0.93333,1],[1.49804,1.28627,1.06667,1],[1.41961,1.22353,1.01176,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0.90196,0.58824,0.42353,1],[1.08235,0.69804,0.38431,1],[1.20784,0.8,0.46275,1],[1.30196,0.87843,0.53333,1],[1.32549,0.88627,0.52549,1],[1.35686,0.91765,0.56471,1],[1.35686,0.90196,0.58039,1],[1.35686,0.89412,0.56471,1],[1.28627,0.82353,0.51765,1],[1.28627,0.79216,0.51765,1],[1.29412,0.78431,0.5098,1],[1.3098,0.81569,0.53333,1],[1.33333,0.8549,0.56471,1],[1.37255,0.90196,0.61176,1],[1.46667,1.05882,0.80784,1],[1.52941,1.16863,0.91765,1],[1.45882,1.11373,0.86275,1],[1.38824,1.05882,0.84706,1],[1.43529,1.18431,0.95686,1],[1.24706,1.06667,0.94902,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0.95686,0.59608,0.36078,1],[1.24706,0.83137,0.53333,1],[1.29412,0.83137,0.50196,1],[1.27059,0.76078,0.41569,1],[1.2549,0.76078,0.41569,1],[1.30196,0.75294,0.42353,1],[1.36471,0.81569,0.50196,1],[1.38824,0.86275,0.57255,1],[1.37255,0.8549,0.57255,1],[1.37255,0.86275,0.58824,1],[1.41176,0.89412,0.62745,1],[1.42745,0.90196,0.63529,1],[1.38824,0.87843,0.61176,1],[1.38824,0.9098,0.64314,1],[1.43529,0.98039,0.71373,1],[1.52157,1.10588,0.8549,1],[1.46667,1.0902,0.8549,1],[1.40392,1.05098,0.83137,1],[1.34902,1.01176,0.8,1],[1.29412,1.06667,0.93333,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0.58039,0.26667,0.20392,1],[0.8549,0.44706,0.25098,1],[1.1451,0.68235,0.4,1],[1.1451,0.65098,0.35294,1],[1.20784,0.65098,0.3451,1],[1.23137,0.65882,0.32941,1],[1.3098,0.71373,0.39216,1],[1.39608,0.78431,0.49412,1],[1.44314,0.83137,0.57255,1],[1.45882,0.84706,0.58824,1],[1.45882,0.88627,0.64314,1],[1.45882,0.9098,0.6902,1],[1.47451,0.91765,0.70588,1],[1.41961,0.87843,0.64314,1],[1.44314,0.87059,0.63529,1],[1.45882,0.90196,0.64314,1],[1.4902,0.96471,0.72941,1],[1.45882,0.96471,0.73725,1],[1.39608,0.96471,0.76863,1],[1.37255,1.02745,0.8549,1],[1.39608,1.16078,1.03529,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0.65098,0.29804,0.24314,1],[1.00392,0.55686,0.35294,1],[1.12157,0.65098,0.38431,1],[1.15294,0.64314,0.40784,1],[1.24706,0.64314,0.36863,1],[1.33333,0.66667,0.36078,1],[1.36471,0.69804,0.4,1],[1.43529,0.73725,0.47059,1],[1.55294,0.83922,0.60392,1],[1.59216,0.86275,0.62745,1],[1.6,0.90196,0.6902,1],[1.58431,0.96471,0.80784,1],[1.56078,0.97255,0.81569,1],[1.52157,0.87843,0.69804,1],[1.59216,0.90196,0.71373,1],[1.55294,0.95686,0.75294,1],[1.52941,0.99608,0.78431,1],[1.45098,0.93333,0.72157,1],[1.45098,0.97255,0.77647,1],[1.42745,1.08235,0.92549,1],[1.45882,1.24706,1.11373,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0.6902,0.31373,0.22745,1],[0.95686,0.51765,0.29804,1],[1.16078,0.68235,0.4549,1],[1.26275,0.70588,0.5098,1],[1.39608,0.72157,0.44706,1],[1.53725,0.83922,0.52549,1],[1.58431,0.88627,0.62745,1],[1.61569,0.9098,0.69804,1],[1.7098,1.00392,0.84706,1],[1.76471,1.01961,0.83137,1],[1.77255,1.08235,0.92549,1],[1.74902,1.11373,1.00392,1],[1.70196,1.12157,1.02745,1],[1.67843,1.08235,0.98039,1],[1.6549,1.06667,0.92549,1],[1.44314,0.98824,0.80784,1],[1.19216,0.80784,0.60392,1],[1.37255,0.99608,0.8,1],[1.56863,1.15294,0.94902,1],[1.43529,1.04314,0.88627,1],[1.40392,1.10588,0.95686,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0.80784,0.42353,0.32157,1],[1.07451,0.65882,0.43137,1],[1.28627,0.87059,0.66667,1],[1.32549,0.80784,0.61176,1],[1.46667,0.8,0.53333,1],[1.63137,0.96471,0.70588,1],[1.6549,1.0902,0.87059,1],[1.6549,1.15294,0.97255,1],[1.74902,1.30196,1.16863,1],[1.77255,1.24706,1.12941,1],[1.80392,1.2549,1.16863,1],[1.79608,1.27059,1.22353,1],[1.81961,1.36471,1.31765,1],[1.82745,1.38824,1.30196,1],[1.58431,1.15294,1.06667,1],[1.23922,0.8549,0.77647,1],[1.38039,0.99608,0.93333,1],[1.57647,1.17647,1.0902,1],[1.61569,1.18431,1.02745,1],[1.46667,1.04314,0.89412,1],[1.33333,1.04314,0.9098,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0.65882,0.30588,0.25098,1],[0.95686,0.61961,0.49412,1],[1.32549,0.97255,0.82353,1],[1.43529,0.93333,0.72941,1],[1.49804,0.86275,0.60392,1],[1.52157,0.89412,0.63529,1],[1.27843,0.76863,0.58039,1],[1.03529,0.54902,0.41569,1],[1.03529,0.56471,0.46275,1],[1.29412,0.81569,0.70588,1],[1.57647,1.06667,0.99608,1],[1.72549,1.12941,1.05882,1],[1.78824,1.19216,1.12157,1],[1.64706,1.13725,1.05882,1],[1.37255,0.94118,0.87059,1],[1.55294,1.15294,1.09804,1],[1.60784,1.09804,1.02745,1],[1.4902,0.93333,0.83922,1],[1.59216,1.1451,1.02745,1],[1.49804,1.07451,0.93333,1],[1.35686,1.0902,0.98039,1],[0.86275,0.67451,0.7451,1],[0,0,0,0]],
-    [[0,0,0,0],[0.61961,0.26667,0.15686,1],[0.87843,0.55686,0.46275,1],[1.23922,0.8549,0.7451,1],[1.45098,0.87059,0.65882,1],[1.52157,0.87843,0.61176,1],[1.52157,0.92549,0.68235,1],[1.48235,0.93333,0.80784,1],[1.50588,0.91765,0.84706,1],[1.59216,1.08235,0.98824,1],[1.38824,0.94118,0.88627,1],[1.19216,0.66667,0.61176,1],[1.46667,0.84706,0.75294,1],[1.79608,1.18431,1.03529,1],[1.52941,1.05098,0.95686,1],[1.32549,0.88627,0.83137,1],[1.45882,0.99608,0.91765,1],[1.28627,0.93333,0.87843,1],[1.56863,1.16078,1.07451,1],[1.59216,1.2,1.08235,1],[1.6,1.12157,0.98039,1],[1.32549,0.98824,0.87059,1],[0.87843,0.55686,0.57255,1],[0,0,0,0]],
-    [[0,0,0,0],[0.73725,0.32941,0.16471,1],[0.90196,0.5098,0.39216,1],[1.16078,0.6902,0.57255,1],[1.47451,0.82353,0.60392,1],[1.52157,0.82353,0.58039,1],[1.45098,0.84706,0.62745,1],[1.30196,0.71373,0.58039,1],[1.33333,0.70588,0.61961,1],[1.11373,0.72157,0.6902,1],[1.37255,1.00392,0.94902,1],[1.31765,0.83137,0.79216,1],[1.44314,0.8549,0.71373,1],[1.78824,1.15294,0.95686,1],[1.67843,1.15294,0.98824,1],[1.45882,0.93333,0.84706,1],[1.38039,0.98039,0.94118,1],[1.02745,0.84706,0.83137,1],[1.63137,1.27843,1.19216,1],[1.74118,1.41176,1.26275,1],[1.67059,1.18431,1.01176,1],[1.28627,0.91765,0.81569,1],[1.08235,0.70588,0.6902,1],[0,0,0,0]],
-    [[0,0,0,0],[1.00392,0.51765,0.28235,1],[0.94118,0.48627,0.33725,1],[1.09804,0.63529,0.5098,1],[1.43529,0.79216,0.56471,1],[1.50588,0.76863,0.54118,1],[1.57647,0.97255,0.76078,1],[1.51373,1.05098,0.89412,1],[1.52157,1.01176,0.91765,1],[1.22353,0.88627,0.83137,1],[1.50588,1.18431,1.12941,1],[1.52941,1.03529,0.98824,1],[1.61569,0.96471,0.76863,1],[1.70196,1.01961,0.82353,1],[1.80392,1.27059,1.08235,1],[1.67059,1.18431,1.04314,1],[1.72549,1.31765,1.23922,1],[1.74118,1.35686,1.26275,1],[1.78824,1.41961,1.2549,1],[1.84314,1.49804,1.3098,1],[1.72549,1.24706,1.06667,1],[1.37255,0.92549,0.83922,1],[1.27059,0.92549,0.99608,1],[0,0,0,0]],
-    [[0,0,0,0],[0.95686,0.54118,0.44706,1],[0.95686,0.46275,0.32157,1],[1.02745,0.54118,0.4549,1],[1.34902,0.73725,0.55686,1],[1.52941,0.80784,0.58039,1],[1.73333,1.12941,0.88627,1],[1.74118,1.2549,1.05098,1],[1.61569,1.0902,0.92549,1],[1.6,1.16078,1.03529,1],[1.60784,1.18431,1.11373,1],[1.66275,1.08235,0.97255,1],[1.63137,0.94118,0.77647,1],[1.64706,0.94902,0.77647,1],[1.84314,1.30196,1.13725,1],[1.74902,1.23922,1.0902,1],[1.75686,1.20784,1.04314,1],[1.87451,1.45098,1.29412,1],[1.86667,1.45098,1.27843,1],[1.83529,1.38039,1.2,1],[1.70196,1.16863,0.99608,1],[1.5451,1.10588,1.00392,1],[1.42745,1.12157,1.19216,1],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[1.10588,0.54902,0.36078,1],[0.99608,0.46275,0.36078,1],[1.27059,0.70588,0.56471,1],[1.52157,0.80784,0.55686,1],[1.68627,1.02745,0.77647,1],[1.82745,1.29412,1.03529,1],[1.81176,1.27843,1.03529,1],[1.84314,1.33333,1.12941,1],[1.81961,1.3098,1.16078,1],[1.74118,1.18431,1.01961,1],[1.52157,0.83137,0.62745,1],[1.63922,0.97255,0.80784,1],[1.85098,1.2549,1.11373,1],[1.69412,1.12941,1.01961,1],[1.78039,1.20784,1.06667,1],[1.88235,1.35686,1.21569,1],[1.85882,1.36471,1.23922,1],[1.73333,1.1451,0.98039,1],[1.6549,1.06667,0.92549,1],[1.67059,1.19216,1.06667,1],[1.55294,1.23137,1.23922,1],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[1.43529,0.69804,0.50196,1],[1.20784,0.55686,0.40784,1],[1.31765,0.72157,0.56471,1],[1.51373,0.81569,0.59608,1],[1.5451,0.79216,0.55686,1],[1.67843,0.95686,0.7451,1],[1.74902,1.10588,0.87843,1],[1.81961,1.24706,1.03529,1],[1.81176,1.26275,1.09804,1],[1.77255,1.17647,1.01961,1],[1.52941,0.8549,0.6902,1],[1.63922,1.03529,0.87843,1],[1.7098,1.1451,1.02745,1],[1.62353,1.12941,1.01961,1],[1.74902,1.16078,1.0902,1],[1.82745,1.30196,1.17647,1],[1.80392,1.26275,1.11373,1],[1.66275,1.04314,0.89412,1],[1.63137,1.01176,0.86275,1],[1.73333,1.26275,1.12157,1],[1.45882,1.2,1.23922,1],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[1.28627,0.8,0.86275,1],[1.71765,1.00392,0.72941,1],[1.55294,0.89412,0.66667,1],[1.53725,0.77647,0.57255,1],[1.52157,0.72941,0.53333,1],[1.45882,0.69804,0.50196,1],[1.53725,0.80784,0.61176,1],[1.68627,0.98039,0.78431,1],[1.74118,1.0902,0.91765,1],[1.73333,1.08235,0.94118,1],[1.38824,0.69804,0.57255,1],[1.00392,0.37647,0.25882,1],[1.23137,0.55686,0.43137,1],[1.23137,0.57255,0.48627,1],[1.74118,1.11373,1.04314,1],[1.78039,1.22353,1.11373,1],[1.76471,1.2,1.05882,1],[1.6549,1.02745,0.88627,1],[1.63137,0.98039,0.82353,1],[1.60784,1.06667,0.94118,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.78824,1.13725,0.89412,1],[1.6549,0.96471,0.72157,1],[1.53725,0.7451,0.52549,1],[1.57647,0.8,0.58039,1],[1.48235,0.72941,0.51765,1],[1.43529,0.6902,0.48627,1],[1.56863,0.8,0.61176,1],[1.7098,0.99608,0.77647,1],[1.74902,1.03529,0.8549,1],[1.63137,0.88627,0.70588,1],[1.41961,0.69804,0.5098,1],[1.6,0.98039,0.81569,1],[1.74902,1.16078,1.01176,1],[1.73333,1.07451,0.91765,1],[1.73333,1.12157,0.98039,1],[1.69412,1.05098,0.88627,1],[1.63137,1.00392,0.8549,1],[1.64706,1.01176,0.83922,1],[1.16863,0.73725,0.83922,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.38824,0.84706,0.90196,1],[1.70196,0.93333,0.6902,1],[1.49804,0.72941,0.49412,1],[1.5451,0.76863,0.53333,1],[1.49804,0.70588,0.48627,1],[1.45882,0.70588,0.4549,1],[1.47451,0.73725,0.5098,1],[1.56863,0.80784,0.55686,1],[1.72549,1.00392,0.77647,1],[1.68627,0.94902,0.72157,1],[1.7098,1.01176,0.80784,1],[1.78039,1.08235,0.99608,1],[1.78039,1.1451,1.05882,1],[1.74902,1.2,1.01961,1],[1.68627,1.04314,0.87843,1],[1.63922,0.96471,0.78431,1],[1.61569,1.00392,0.82353,1],[1.6549,0.98824,0.8,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0.92549,0.42353,0.4,1],[1.43529,0.68235,0.50196,1],[1.4902,0.70588,0.5098,1],[1.45882,0.68235,0.4549,1],[1.45098,0.70588,0.44706,1],[1.43529,0.70588,0.4549,1],[1.41961,0.64314,0.41569,1],[1.46667,0.71373,0.47843,1],[1.6,0.91765,0.6902,1],[1.2,0.58039,0.47059,1],[0.46275,0.14118,0.16471,1],[0.54902,0.11765,0.12549,1],[1.52157,0.98039,0.87843,1],[1.63137,1.04314,0.89412,1],[1.6549,0.98824,0.78431,1],[1.63922,1.01961,0.8,1],[1.60784,0.95686,0.72941,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.35686,0.65098,0.48627,1],[1.32549,0.57255,0.37647,1],[1.43529,0.67451,0.43922,1],[1.49804,0.76863,0.51765,1],[1.55294,0.82353,0.58039,1],[1.56078,0.82353,0.55686,1],[1.47451,0.73725,0.47843,1],[1.36471,0.68235,0.5098,1],[0.93333,0.37647,0.37647,1],[0.44706,0.38431,0.38431,1],[0.65098,0.26667,0.2902,1],[1.38039,0.70588,0.69804,1],[1.55294,0.91765,0.79216,1],[1.66275,1.03529,0.80784,1],[1.63922,0.99608,0.76863,1],[1.61569,0.91765,0.66667,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1.16078,0.57255,0.44706,1],[1.23922,0.52549,0.28235,1],[1.3098,0.58824,0.33725,1],[1.48235,0.73725,0.47843,1],[1.57647,0.83137,0.56471,1],[1.57647,0.80784,0.54118,1],[1.52941,0.75294,0.50196,1],[1.48235,0.65882,0.48627,1],[1.63137,0.69804,0.71373,1],[1.67059,0.73725,0.79216,1],[1.64706,0.60392,0.68235,1],[1.57647,0.84706,0.77647,1],[1.56863,0.83137,0.69804,1],[1.56078,0.88627,0.72941,1],[1.6,0.97255,0.77647,1],[1.56863,0.92549,0.65882,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0.72157,0.4549,0.36863,1],[1.28627,0.54902,0.2902,1],[1.28627,0.56471,0.31373,1],[1.44314,0.6902,0.43137,1],[1.46667,0.71373,0.4549,1],[1.44314,0.68235,0.42353,1],[1.47451,0.65098,0.41569,1],[1.36471,0.54902,0.31373,1],[1.20784,0.43137,0.32157,1],[1.35686,0.63529,0.63529,1],[1.37255,0.66667,0.68235,1],[1.38824,0.65882,0.49412,1],[1.52157,0.78431,0.60392,1],[1.5451,0.87843,0.69804,1],[1.61569,0.98824,0.78431,1],[1.34118,0.80784,0.62745,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0.06275,1],[1.11373,1.04314,0.98039,1],[1.30196,0.70588,0.48627,1],[1.28627,0.57255,0.30588,1],[1.38039,0.64314,0.39216,1],[1.45882,0.7451,0.5098,1],[1.38824,0.67451,0.44706,1],[1.50588,0.72941,0.5098,1],[1.50588,0.70588,0.47843,1],[1.43529,0.70588,0.51765,1],[1.37255,0.76078,0.62745,1],[1.45098,0.83137,0.72157,1],[1.63137,0.94118,0.79216,1],[1.67843,1.00392,0.83137,1],[1.58431,0.98039,0.8,1],[1.49804,0.89412,0.69804,1],[1.09804,0.73725,0.63529,1],[0.28235,0.36078,0.55686,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,0,0],[0,0,0,0],[0.26667,0.36863,0.64314,1],[0.23529,0.25098,0.3451,1],[0,0,0.02353,1],[1.26275,1.23137,1.16078,1],[1.66275,1.43529,1.3098,1],[1.09804,0.44706,0.21176,1],[1.22353,0.54118,0.32941,1],[1.31765,0.65882,0.4549,1],[1.30196,0.65098,0.46275,1],[1.35686,0.63529,0.43137,1],[1.64706,0.8549,0.65098,1],[1.67059,0.90196,0.7451,1],[1.72549,1.02745,0.90196,1],[1.71765,1.02745,0.87843,1],[1.68627,1.01961,0.87059,1],[1.63922,0.98039,0.81569,1],[1.38824,0.83922,0.65882,1],[1.21569,0.70588,0.52549,1],[1.46667,1.34902,1.3098,1],[0.29804,0.36078,0.52549,1],[0.29804,0.36863,0.54902,1],[0,0,0,0]],
-    [[0.23529,0.35294,0.61176,1],[0.21961,0.30588,0.49412,1],[0.21176,0.26667,0.38431,1],[0.18039,0.18039,0.25882,1],[0.00784,0,0.04706,1],[1.16863,1.13725,1.08235,1],[1.93725,1.87451,1.79608,1],[1.45098,1.23922,1.12157,1],[0.94118,0.46275,0.2902,1],[1.05882,0.47843,0.33725,1],[1.16078,0.54118,0.40784,1],[1.0902,0.47843,0.3451,1],[1.23137,0.54902,0.39216,1],[1.43529,0.6902,0.52549,1],[1.51373,0.75294,0.64314,1],[1.48235,0.72157,0.63529,1],[1.30196,0.66667,0.57255,1],[1.08235,0.59608,0.50196,1],[0.94902,0.51765,0.39216,1],[1.24706,1.00392,0.93333,1],[1.79608,1.82745,1.82745,1],[0.27451,0.36078,0.52549,1],[0.25098,0.30588,0.47059,1],[0.30588,0.36078,0.52549,1]],
-    [[0.18039,0.27451,0.46275,1],[0.20392,0.29804,0.47059,1],[0.21961,0.28235,0.43137,1],[0.17255,0.17255,0.27451,1],[0.03137,0.02353,0.12549,1],[1.03529,1.03529,0.99608,1],[2,1.97647,1.90588,1],[1.85098,1.81961,1.74118,1],[1.45098,1.34118,1.2549,1],[0.94118,0.62745,0.52549,1],[0.88627,0.41569,0.28235,1],[0.98039,0.44706,0.2902,1],[0.76863,0.33725,0.23529,1],[0.61961,0.21961,0.20392,1],[0.65882,0.23529,0.23529,1],[0.65882,0.22745,0.20392,1],[0.55686,0.26667,0.21961,1],[0.62745,0.32941,0.26667,1],[0.96471,0.76078,0.70588,1],[1.78824,1.81176,1.81961,1],[1.59216,1.64706,1.70196,1],[0.22745,0.28235,0.44706,1],[0.22745,0.25882,0.43137,1],[0.29804,0.33725,0.5098,1]],
-    [[0.15686,0.22745,0.41569,1],[0.18039,0.25098,0.41569,1],[0.20392,0.26667,0.40784,1],[0.15686,0.17255,0.29804,1],[0.09412,0.08627,0.21176,1],[0.49412,0.48627,0.52549,1],[1.92157,1.89804,1.81176,1],[1.9451,1.91373,1.85098,1],[1.82745,1.81176,1.75686,1],[1.50588,1.50588,1.45882,1],[1.00392,0.83922,0.82353,1],[0.82353,0.52549,0.4549,1],[0.64314,0.26667,0.22745,1],[0.43922,0.10196,0.09412,1],[0.26667,0.00784,0.01569,1],[0.3451,0.04706,0.04706,1],[0.59608,0.29804,0.29804,1],[1.12157,1.01176,1.00392,1],[1.78039,1.84314,1.87451,1],[0,0,0,0],[1.10588,1.16078,1.2549,1],[0.13333,0.18039,0.35294,1],[0.18824,0.23529,0.39216,1],[0.26667,0.30588,0.47843,1]],
-    [[0.13333,0.18824,0.36078,1],[0.15686,0.22745,0.38431,1],[0.16471,0.22745,0.39216,1],[0.13333,0.16471,0.29804,1],[0.07843,0.10196,0.21961,1],[0.13333,0.14902,0.27451,1],[1.68627,1.66275,1.58431,1],[1.88235,1.87451,1.81176,1],[1.92157,1.89804,1.84314,1],[1.81176,1.80392,1.74118,1],[1.66275,1.67059,1.61569,1],[1.37255,1.32549,1.29412,1],[0.98039,0.7451,0.7451,1],[0.4,0.08627,0.12549,1],[0.18824,0,0,1],[0.56471,0.4,0.43922,1],[1.45882,1.46667,1.51373,1],[1.90588,2,2,1],[1.97647,2,2,1],[0,0,0,0],[0.62745,0.6902,0.81569,1],[0.07843,0.14902,0.32157,1],[0.14902,0.19608,0.36863,1],[0.21961,0.26667,0.43922,1]]];
-
-
-    document.body.addEventListener('touchstart', goFullScreen);
+    // document.body.addEventListener('touchstart', goFullScreen);
 
     //bad name
     function goFullScreen() {
@@ -46,11 +12,17 @@
       document.body.removeEventListener('touchstart', goFullScreen);
     }
 
-    let x = 1;
-    document.body.addEventListener('wheel', event => {
-      camera.followDistance += event.deltaY > 0 ? x : -x;
-      camera.followDistance = Math.max(0, camera.followDistance);
+    let scalar = 0.10;
+    const mathboxEl = document.querySelector('mathbox'),
+          universeEl = document.querySelector('universe');
+
+    mathboxEl.addEventListener('wheel', event => {
+      console.log('wheel', event);
+      // camera.followDistance *= 1 + (event.deltaY > 0 ? scalar : -scalar);
+      // camera.followDistance = Math.max(0, camera.followDistance);
     });
+
+    console.log({mathboxEl});
 
     // document.body.addEventListener('mousemove', ({clientX, clientY}) => {
     //   const width = document.body.clientWidth,
@@ -62,319 +34,8 @@
     //   set(camera.targetLocalRotation, x * 2, y * 2, 1);
     // });
 
-
-    const hud = document.querySelector('hud'),
-          enterLookingEl = document.querySelector('enter-looking'),
-          enterMovingEl = document.querySelector('enter-moving'),
-          lookingEl = document.querySelector('looking'),
-          movingEl = document.querySelector('moving');
-
-    enterLookingEl.addEventListener('click', event => console.log('go looking') & enterState('looking'));
-    enterMovingEl.addEventListener('click', event => console.log('go moving') & enterState('moving'));
-
-    // const states = {looking, moving};
-    let currentState, controls;
-
-    function enterState(state) {
-      console.log('entering', state);
-      if (currentState) hud.classList.remove(currentState);
-
-      hud.classList.add(state);
-
-      if (state === 'moving') {
-        camera.targetOffset = [0, 0, 1];
-        camera.followDistance = 70;
-        camera.targetFov = 100;
-
-        controls = attachVelocityControls();
-      }
-      else if (state === 'looking') {
-        camera.targetLocalRotation = [0, Math.PI / 5, 0];
-        camera.targetOffset = [0, 1, 1];
-        camera.followDistance = 30;
-        camera.targetFov = 60;
-
-        detachVelocityControls(controls);
-      }
-      else if (state === 'start') {
-        camera.targetLocalRotation = [0, Math.PI / 3, 0];
-        camera.targetOffset = [0, 1, 1];
-        camera.followDistance = 100;
-        camera.targetFov = 110;
-
-        detachVelocityControls(controls);
-      }
-
-      currentState = state;
-    }
-
-    function attachVelocityControls() {
-      return ['xn', 'xp', 'yn', 'yp', 'zn', 'zp'].map(n => {
-        const el = document.querySelector(n);
-
-        console.log('attaching on', n);
-
-        el.onmousedown = event => {
-          console.log(n);
-          events.push([`+${n}`]);
-          event.stopPropagation();
-        };
-
-        el.onmouseup = event => {
-          events.push([`-${n}`]);
-          event.stopPropagation();
-        };
-
-        el.onclick = event => {
-          event.stopPropagation();
-        };
-
-        return el;
-      });
-    }
-
-    function detachVelocityControls(controls) {
-      (controls || []).forEach(c => c.onmousedown = c.onmouseup = c.onclick = undefined);
-    }
-
-    const velocityControlsEl = document.querySelector('velocity-controls'),
-          movingTriggerEl = document.querySelector('moving-trigger');
-
-    movingEl.addEventListener('click', event => {
-      console.log('moving to start');
-      enterState('start');
-    });
-
-    lookingEl.addEventListener('click', event => {
-      console.log('looking to start');
-      enterState('start');
-    });
-
-    movingTriggerEl.addEventListener('click', event => {
-      event.stopPropagation();
-      enterState('moving');
-    });
-
-    const orbitStatisticsQuantityEl = document.querySelector('orbit-statistics-quantity'),
-          massNameEls = document.getElementsByTagName('mass-name'),
-          lookAtMassNameEl = document.querySelector('look-at-mass-name'),
-          lookAtMassQuantityEl = document.querySelector('look-at-mass-quantity'),
-          lookAtDistanceQuantityEl = document.querySelector('look-at-distance-quantity'),
-          lookAtTrumpDistanceQuantityEl = document.querySelector('look-at-trump-distance-quantity'),
-          massQuantityEl = document.querySelector('mass-quantity'),
-          massVelocityQuantityEl = document.querySelector('mass-velocity-quantity'),
-          massAccelerationQuantityEl = document.querySelector('mass-acceleration-quantity'),
-          distanceQuantityEl = document.querySelector('distance-quantity'),
-          catchUpQuantityEl = document.querySelector('catch-up-quantity'),
-          soulsQuantityEl = document.querySelector('souls-quantity'),
-          trumpTweetEl = document.querySelector('trump-tweet'),
-          absorbedEl = document.querySelector('absorbed'),
-          absorbedNameEl = document.querySelector('absorbed-name'),
-          absorbedByNameEl = document.querySelector('absorbed-by-name'),
-          absorbedByEl = document.querySelector('absorbed-by'),
-          absorbedByByNameEl = document.querySelector('absorbed-by-by-name'),
-          poofEl = document.querySelector('poof'),
-          noticeEl = document.querySelector('notice'),
-          stateEl = document.querySelector('state');
-
-    const tagEl = document.querySelector('tag'),
-          currentLookAtEl = document.querySelector('current-look-at'),
-          commandsEl = document.querySelector('commands'),
-          overviewEl = document.querySelector('overview'),
-          statsEl = document.querySelector('stats'),
-          helpEl = document.querySelector('help'),
-          helpContentEl = document.querySelector('help-content'),
-          previousLookAtEl = document.querySelector('previous-look-at'),
-          nextLookAtEl = document.querySelector('next-look-at');
-
     function vnew(v) {
       return copy([0, 0, 0], v);
-    }
-
-    const speed = 60 * 2;
-    class Camera {
-      constructor({follow, lookAt}) {
-        this.follow = follow;
-        this.lookAt = lookAt;
-
-        this._targetPosition = [0, 0, 0];
-        this._targetLookAt = [0, 0, 0];
-        this._targetOffset = [0, 1, 0];
-        this._targetUp = [0, 0, 0];
-        this._targetFov = 90;
-        this._targetFollowDistance = 70;
-        this._targetLocalRotation = [0, 0, 0];
-
-        this._li = 0;
-        this._pi = 0;
-        this._oi = 0;
-        this._fi = 0;
-        this._fdi = 0;
-        this._lri = 0;
-
-        this.observed = {
-          position: vnew(this._targetPosition),
-          lookAt: vnew(this._targetLookAt),
-          up: vnew(this._targetUp),
-          fov: this._targetFov
-        };
-
-        this.offset = vnew(this._targetOffset);
-        this.followDistance = this._targetFollowDistance;
-        this.localRotation = vnew(this._targetLocalRotation);
-      }
-
-      get iOffset() { return add(dd, this.offset, scale(dd, sub(dd, this._targetOffset, this.offset), Math.min(this._oi, speed) / speed)); }
-      get iPosition() { return ;}
-
-      get iFollowDistance() { return this.followDistance + (this.followDistance - this._targetFollowDistance) / (Math.min(this._fdi, speed) / speed); }
-
-      get iLocalRotation() { return add(dd, this.localRotation, scale(dd, sub(dd, this._targetLocalRotation, this.localRotation), Math.min(this._lri, speed) / speed)); }
-
-      update() {
-        const p = this.follow.position,
-              tp = this.lookAt.position,
-              d = sub([0, 0, 0], tp, p),
-              m = magnitude(d);
-
-        if (m > 0) div (d, d, m);
-
-        // copy(this.position, this.iPosition);
-        // copy(this.lookAt, this.iLookAt);
-        copy(this.offset, this.iOffset);
-        copy(this.localRotation, this.iLocalRotation);
-        // copy(this.up, this.iUp);
-
-        this._li++;
-        this._pi++;
-        this._oi++;
-        this._fdi++;
-        this._lri++;
-        this._fi++;
-
-        const q = qFromVectors2([0, 0, -1], d),
-              r = [0, 0, 0, 0],
-              i = qinv([0, 0, 0, 0], q);
-
-        const rotation = [Math.sin(this.localRotation[0]), Math.sin(this.localRotation[1]), Math.cos(this.localRotation[0]) + Math.cos(this.localRotation[1])],
-              rm = magnitude(rotation) || 1;
-
-        qmult(r, qmult(r, q, [0, rotation[0], rotation[1], rotation[2]]), qconj(i, q));
-        // qmult(r, qmult(r, qconj(i, q), [0, rotation[0] / rm, rotation[1] / rm, rotation[2] / rm]), q);
-        // qmult(r, qconj(i, q), qmult(r, [0, rotation[0] / rm, rotation[1] / rm, rotation[2] / rm], q));
-
-        qunit(r, r);
-
-        // console.log(r, d);
-
-        set(d, r[1], r[2], r[3]);
-        // add(d, p, d);
-        // sub(d, d, p);
-
-
-        // sub(dd, normalize(d, d), normalize(dd, p));
-
-        const om = magnitude(this.offset) || 1;
-
-        const q2 = qFromVectors2([0, 0, 1], vnew(d)),
-              r2 = [0, 0, 0, 0],
-              i2 = qinv([0, 0, 0, 0], q2);
-
-        qunit(q2, q2);
-
-        // // not right!
-        qmult(r2, qmult(r2, q2, [0, this.offset[0] / om, this.offset[1] / om, this.offset[2] / om]), qconj(i2, q2));
-        // // qmult(r2, qmult(r2, qconj(i, q2), [0, this.offset[0] / om, this.offset[1] / om, this.offset[2] / om]), q2);
-
-        qunit(r2, r2);
-
-        add(d, d, [r2[1], r2[2], r2[3]]);
-
-        add(this._targetPosition, p, scale(d, normalize(d, d), this.iFollowDistance));
-        // add(this._targetPosition, this._targetPosition, this.offset);
-        // add(this._targetPosition, scale(dd, normalize(dd, sub(dd, this._targetPosition, this.offset)), this.followDistance));
-
-        add(this.observed.position, this.observed.position, scale(dd, sub(dd, this.observed.position, this._targetPosition), -Math.min(this._pi++, speed) / speed));
-
-        add(this.observed.lookAt, this.observed.lookAt, scale(dd, sub(dd, this.lookAt.position, this.observed.lookAt), Math.min(this._li++, speed) / speed));
-
-        this.observed.fov = this.observed.fov + (this._targetFov - this.observed.fov) * Math.min(this._fi++, speed) / speed;
-
-
-        // const q = qFromUnitVectors([0, 0, 1], normalize(dd, sub(dd, this.observed.position, this.observed.lookAt)));
-        // const q = qFromUnitVectors(this.localRotation, normalize(dd, sub(dd, this.observed.position, this.observed.lookAt)));
-        // const r = [0, 0, 0, 0],
-        //       i = qinv([0, 0, 0, 0], q);
-
-        // qmult(r, qmult(r, q, [0, this.offset[0], this.offset[1], this.offset[2]]), qconj(i, q));
-
-        // qmult(r, qmult(r, q, [0, 0, 1, 0]), i);
-
-        set(this.observed.up, 0, 1, 0);
-
-        copy(this.observed.lookAt, p);
-
-        // console.log(this.observed.position, r);
-
-        // cross(this.observed.up, [0, 0, 1], sub(dd, this.observed.position, tp))
-        // cross(this.observed.up, this.observed.up, sub([0, 0, 0, 0], this.observed.position, this.observed.lookAt));
-
-        // cross(this.observed.up, sub(dd, p, tp), sub([0, 0, 0], this.observed.position, this.observed.lookAt));
-      }
-
-      set lookAt (mass) { console.log('now looking at', mass); if (!mass) throw new Error('looking at nothing!'); this._lookAtMass = mass; this._li = 0; }
-      set follow (mass) { console.log('now following', mass); this._followMass = mass; this._pi = 0; }
-
-      get lookAt () { return this._lookAtMass; }
-      get follow () { return this._followMass; }
-
-      set lookAtIndex (index) {
-        if (index !== this._lookAtIndex) this._li = 0;
-        this._lookAtIndex = index;
-      }
-
-      set positionIndex (index) {
-        if (index !== this._positionIndex) this._pi = 0;
-        this._positionIndex = index;
-      }
-
-      set targetFov (fov) {
-        if (fov !== this.targetFov) this._fi = 0;
-        this._targetFov = fov;
-      }
-
-      get lookAtIndex() { return this._lookAtIndex || 0; }
-      get positionIndex() { return this._positionIndex || 0; }
-
-      get targetPosition() {
-        return universe[this.positionIndex].position;
-      }
-
-      get targetLookAt() {
-        return universe[this.lookAtIndex].position;
-      }
-
-      set targetOffset([x, y, z]) {
-        if (this._targetOffset[0] !== x || this._targetOffset[1] !== y || this._targetOffset[2] !== z) this._oi = 0;
-        set(this._targetOffset, x, y, z);
-      }
-
-      get targetOffset() { return this._targetOffset; }
-
-      set targetLocalRotation([x, y, z]) {
-        if (this._targetLocalRotation[0] !== x || this._targetLocalRotation[1] !== y || this._targetLocalRotation[2] !== z) this._lri = 0;
-        set(this._targetLocalRotation, x, y, z);
-      }
-
-      get targetLocalRotation() { return this._targetLocalRotation; }
-
-      set followDistance(d) {
-        if (this._targetFollowDistance != d) this._fdi = 0;
-        this._targetFollowDistance = d;
-        console.log('set follow', d);
-      }
-
-      get followDistance() { return this._targetFollowDistance; }
     }
 
     class Mass {
@@ -391,12 +52,13 @@
         this.collisions = [];
       }
 
-      set mass(value) { this._mass = value; this._sizeContainer[0] = 700 * Math.pow(3 / (4 * Math.PI) * value, 1 / 3); }
+      set mass(value) { this._mass = value; this._sizeContainer[0] = Math.pow((3 / (4 * Math.PI)) * value, 1 / 3); }
+      // set mass(value) { this._mass = value; this._sizeContainer[0] = 5 * Math.pow(value / Math.PI, 1 / 2); }
       get mass() { return this._mass; }
 
       get name() { return 'Mass'; }
 
-      get size() { return this._sizeContainer; }
+      get size() { return this._sizeContainer[0]; }
       get collisionSize() { return this.size; }
       // get size() { return this.mass; }
       // get size() { return 800 * Math.log2(this.mass + 1); }
@@ -475,7 +137,7 @@
     }
 
     const COLORS = {
-      observer: [2, 2, 2, 1],
+      observer: [0, 0, 2, 1],
       tweet: [0, 1, 1.2, 2],
       retweet: [25 / 128, 207 / 128, 134 / 128, 2],
       like: [190 / 128, 25 / 128, 49 / 128, 2],
@@ -485,12 +147,12 @@
 
     const ORBIT_PARAMETERS = {
       'observer': {
-        p: (tp, tv) => [tp[0], tp[1], tp[2] + 1000],
-        v: (tp, tv) => [320, 0, 0]
+        p: (tp, tv) => [tp[0], tp[1], tp[2] + 5],
+        v: (tp, tv) => [tv[0] + 1, tv[1], tv[2]]
       },
       'oldTweets': {
-        p: (tp, tv) => [tp[0] - 600, tp[1] - 600, tp[2]],
-        v: (tp, tv) => [315, 0, -315]
+        p: (tp, tv) => [tp[0] - 30, tp[1] - 30, tp[2]],
+        v: (tp, tv) => [tv[0] + 1, tv[1], tv[2] + -1]
       },
       'tweet': {
         p: (tp, tv) => [tp[0], tp[1], tp[2] + 450],
@@ -504,6 +166,7 @@
 
     const eevents = {
       // external
+      'newmass': newMass,
       'observer+': addObserver,
       'observer-': removeObserver,
       'tweet': addTweet,
@@ -538,11 +201,11 @@
     };
 
     const uuievents = {
-      'connected': () => noticeEl.classList.add('connected'),
-      'tweet': event => trumpTweetEl.classList.remove('show'),
-      'absorbed': event => absorbedEl.classList.remove('show'),
-      'absorbedBy': event => absorbedByEl.classList.remove('show'),
-      'poof': event => poofEl.classList.remove('show'),
+      // 'connected': () => noticeEl.classList.add('connected'),
+      // 'tweet': event => trumpTweetEl.classList.remove('show'),
+      // 'absorbed': event => absorbedEl.classList.remove('show'),
+      // 'absorbedBy': event => absorbedByEl.classList.remove('show'),
+      // 'poof': event => poofEl.classList.remove('show'),
       'newmass': (event, view) => {
         view.select('#positions').set('width', positions.length);
         view.select('#colors').set('width', colors.length);
@@ -558,8 +221,8 @@
     };
 
 
-    const trump = new Trump(100000, [ 255,   255,    0, 0]),
-          universe = [trump],
+    const sun = new Mass(1000000, [255, 255, 0, 255]),
+          universe = [sun],
           tweets = [],
           tweetMap = {},
           tweetSpawn = [],
@@ -570,8 +233,6 @@
           boostings = [],
           events = [['oldTweets']],
           uievents = [];
-
-    const camera = new Camera({follow: trump, lookAt: trump});
 
     let oldTweets;
 
@@ -620,22 +281,28 @@
 
       uievents.push(['newmass']);
 
+      console.log(sizes);
+
       return newMass;
     }
 
+    function newMass([_, {position: p, velocity: v, mass, color}]) {
+      console.log('newmass', p, v, mass, color);
+      const {position: tp, velocity: tv} = sun;
+      const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]));
 
+      setStat('masses', universe.length);
+    }
 
     let totalObserverCount = 0;
     function addObserver([_, totalConnected]) {
       if (observers.length < MAX_OBSERVERS) {
-        const {position: tp, velocity: tv} = trump;
-        const observer = addMass(new Observer(1, COLORS.observer, ORBIT_PARAMETERS.observer.p(tp, tv), ORBIT_PARAMETERS.observer.v(tp, tv)));
+        const {position: tp, velocity: tv} = sun;
+        const observer = addMass(new Observer(1000, COLORS.observer.slice(), ORBIT_PARAMETERS.observer.p(tp, tv), ORBIT_PARAMETERS.observer.v(tp, tv)));
 
         observer.name = `Observer ${totalObserverCount++}`;
 
         observers.push(observer);
-
-        if (observers.length === 1) camera.follow = observer;
       }
       else {
         const observer = observers[Math.round(Math.random() * (observers.length - 1))];
@@ -652,16 +319,16 @@
 
     function addOldTweets(event) {
       console.log('adding old tweets', event);
-      const {position: tp, velocity: tv} = trump;
-      oldTweets = new OldTweets((oldTweets || {mass: 1000}).mass, [0, 1, 1.2, 1], ORBIT_PARAMETERS.oldTweets.p(tp, tv), ORBIT_PARAMETERS.oldTweets.v(tp, tv));
+      const {position: tp, velocity: tv} = sun;
+      oldTweets = new OldTweets((oldTweets || {mass: 10}).mass, [0, 1, 1.2, 1], ORBIT_PARAMETERS.oldTweets.p(tp, tv), ORBIT_PARAMETERS.oldTweets.v(tp, tv));
 
       addMass(oldTweets);
       tweets.push(oldTweets);
     }
 
     function addTweet(event) {
-      // this should be calculated based on current trump mass (and, maybe, positions/velocities of orbiting masses?)
-      const {position: tp, velocity: tv} = trump;
+      // this should be calculated based on current sun mass (and, maybe, positions/velocities of orbiting masses?)
+      const {position: tp, velocity: tv} = sun;
 
       const tweet = new Tweet(500, COLORS.tweet,
                                    ORBIT_PARAMETERS.tweet.p(tp, tv),
@@ -681,7 +348,6 @@
       tweetMap[tweet.tweetID] = tweet;
 
       uievents.push(['tweet']);
-      camera.lookAt = tweet; // get camera out of here (event?)
     }
 
     function addRetweet(event) {
@@ -701,7 +367,7 @@
     function addTweetSpawn(tweet, constructor, mass, color) {
       if (!tweet) throw new Error('No tweet!!!!!!@!');
 
-      const {position: p, size: s} = tweet,
+      const {position: p} = tweet,
             {position: tp, velocity: tv} = universe[0];
 
       const x = 20;
@@ -730,7 +396,7 @@
 
       const emission = mass.mass * 0.01 / ticksPerStep;
 
-      scale(dd, emissionDirection, mass.collisionSize[0] / 30); // why does this need ~30 here?
+      scale(dd, emissionDirection, mass.collisionSize / 30); // why does this need ~30 here?
 
       const e = addMass(new Emission(emission, COLORS.observer, add([0, 0, 0], mass.position, dd), add([0, 0, 0], newv(mass.velocity), scale(dd, dd, EMISSION_SCALE_FACTOR))));
 
@@ -770,6 +436,7 @@
       }
 
       const index = universe.indexOf(mass); // annoying lookup
+      console.log('poof removing', index);
       universe.splice(index, 1);
       positions.splice(index, 1);
       velocities.splice(index, 1);
@@ -778,17 +445,11 @@
       masses.splice(index, 1);
       sizes.splice(index, 1);
       colors.splice(index, 1);
-
-      if (camera.follow === mass) {
-        camera.follow = observers[0] || trump;
-        uievents.push(['poof', mass]);
-        enterState('looking') // get camera out of here!
-      }
     }
 
     function setBoost(x = 0, y = 0, z = 0) {
       console.log('setBoost', x, y, z);
-      const mass = camera.follow,
+      const mass = sun,
             {boost} = mass;
 
       add(boost, boost, [x, y, z]);
@@ -800,7 +461,7 @@
 
     function unsetBoost(x = 0, y = 0, z = 0) {
       console.log('unsetBoost', x, y, z);
-      const mass = camera.follow,
+      const mass = sun,
             {acceleration, boost} = mass;
 
       set(acceleration, 0, 0, 0);
@@ -818,25 +479,13 @@
 
     let trumpScaleFactor = 5;
     <root>
-      <camera proxy={false}
-              position={t => camera.observed.position}
-              lookAt={t => camera.observed.lookAt}
-              fov={t => camera.observed.fov}
-              up={t => camera.observed.up} />
+      <camera proxy={true}
+              position={[0, 5, 0]}
+              lookAt={[0, 0, 0]}
+              fov={120}
+              up={[0, 1, 0]} />
       <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
                  scale={[1, 1, 1]}>
-        <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
-                   scale={[trumpColors[0].length * trumpScaleFactor, trumpColors.length * trumpScaleFactor, trumpColors.length * trumpScaleFactor]}
-                   position={t => trump.position}
-                   rotation={[Math.PI, 0, 0]}>
-          <area height={trumpColors.length} width={trumpColors[0].length} />
-          <matrix id="trump"
-                  width={trumpColors[0].length}
-                  height={trumpColors.length}
-                  data={trumpColors} />
-          <point points="<<" colors="<" size={1200 * trumpScaleFactor} shape="square" opacity={0.95}/>
-        </cartesian>
-
         <array id="positions"
                width={universe.length}
                channels={3}
@@ -885,7 +534,7 @@
       function updateBoosts() {
         boostings.forEach(mass => {
           const {boost, position: p, velocity: v} = mass,
-                tp = camera.lookAt.position,
+                tp = sun.position,
                 d = normalize([0, 0, 0], sub(dd, p, tp)),
                 [x, y, z] = boost;
 
@@ -930,17 +579,12 @@
             masses.splice(index, 1);
             sizes.splice(index, 1);
             colors.splice(index, 1);
-
-            if (camera.follow === emission) {
-              uievents.push(['poof', emission]);
-              enterState('looking'); // what?!
-            }
           }
         }
       }
 
       function updateTweetSpawn() {
-        const {position: tp, velocity: tv} = trump;
+        const {position: tp, velocity: tv} = sun;
 
         for (let i = 0; i < tweetSpawn.length; i++) {
           const spawn = tweetSpawn[i],
@@ -958,7 +602,7 @@
               uievents.push(['log', '-1!', age, spawn, universe]);
             }
             else {
-              collisionList.push([spawn, trump, index]);
+              collisionList.push([spawn, sun, index]);
             }
           }
         }
@@ -1070,13 +714,17 @@
       }
 
       function updateGravity(d, pv, g, m) {
-        if (d > 0) add(g, g, scale(dd, pv, m / d));
+        if (d > 0) add(g, g, scale(dd, pv, 6.67408e-7 * m / d));
       }
 
       function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
         if (collisions.length === 0) {
-          const threshold = Math.sqrt(s1[0] + s2[0]) / 4;
+          const threshold = Math.sqrt(s1 / 4 + s2 / 4) / 4;
+          // const threshold = Math.sqrt(s1 / 8 + s2 / 8) / 8;
+          // const threshold = s1[0] / 10 + s2[0] / 10;
+          // const threshold = (s1[0] + s2[0]) / 2;
           if (distance < threshold) { // better ordering of checks?
+            console.log(distance, threshold, s1, s2);
             if (m1 <= m2) {
               //wtf is this
               collisions.push([universe[i], universe[j], i, j]);
@@ -1099,14 +747,29 @@
 
       function resolveCollisions() {
         for (let i = collisionList.length - 1; i >= 0; i--) {
+          console.log('collision', collisionList[i]);
           const [smallerMass, greaterMass] = collisionList[i];
 
           greaterMass.mass += smallerMass.mass;
 
           const ratio = smallerMass.mass / greaterMass.mass; // 0?
 
-          div(greaterMass.velocity, add(greaterMass.velocity, scale(greaterMass.velocity, greaterMass.velocity, greaterMass.mass), scale(dd, smallerMass.velocity, smallerMass.mass)), greaterMass.mass + smallerMass.mass);
+          greaterMass.color[0] = (1 - ratio) * greaterMass.color[0] + ratio * smallerMass.color[0];
+          greaterMass.color[1] = (1 - ratio) * greaterMass.color[1] + ratio * smallerMass.color[1];
+          greaterMass.color[2] = (1 - ratio) * greaterMass.color[2] + ratio * smallerMass.color[2];
 
+          // greaterMass.color[0] = (greaterMass.color[0] + smallerMass.color[0]) / 2;
+          // greaterMass.color[1] = (greaterMass.color[1] + smallerMass.color[1]) / 2;
+          // greaterMass.color[2] = (greaterMass.color[2] + smallerMass.color[2]) / 2;
+
+
+          div(greaterMass.velocity,
+            add(greaterMass.velocity,
+              scale(greaterMass.velocity,
+                greaterMass.velocity,
+                greaterMass.mass),
+              scale(dd, smallerMass.velocity, smallerMass.mass)),
+            greaterMass.mass + smallerMass.mass);
         }
 
         for (let i = collisionList.length - 1; i >= 0; i--) {
@@ -1139,6 +802,9 @@
             events.push(['absorbed', smallerMass.name, greaterMass.name]);
           }
 
+          sizes[greaterIndex] = greaterMass.size;
+
+console.log('removing', smallerIndex);
           universe.splice(smallerIndex, 1);
           positions.splice(smallerIndex, 1);
           velocities.splice(smallerIndex, 1);
@@ -1147,11 +813,6 @@
           masses.splice(smallerIndex, 1);
           sizes.splice(smallerIndex, 1);
           colors.splice(smallerIndex, 1);
-
-          if (camera.follow === smallerMass) {
-            uievents.push(['absorbedBy', greaterMass.name]);
-            camera.follow = greaterMass;
-          }
         }
 
         collisionList.splice(0);
@@ -1174,192 +835,32 @@
       stats[target] = value;
     }
 
-
-
-
-
-
     let selectedMassIndex = 0, savedColor = [0, 0, 0];
     selectMass(selectedMassIndex);
 
     if (window.location.search === '?nointro') document.querySelector('notice').classList.add('no-intro');
 
-    function updateMassesGUI() {
-      const masses = Math.max(0, universe.length - 1);
-      orbitStatisticsQuantityEl.innerHTML = masses + ' mass' + (masses > 1 ? 'es' : '');
-
-      // const currentMass = universe[camera.positionIndex],
-      const currentMass = camera.follow,
-            {mass, name, position, velocity, acceleration} = currentMass;
-
-      const distance = magnitude(sub(dd, currentMass.position, trump.position));
-
-      massNameEls[0].innerHTML = name;
-      massNameEls[1].innerHTML = name;
-
-      massQuantityEl.innerHTML = mass.toFixed(2);
-      distanceQuantityEl.innerHTML = distance.toFixed(1);
-      massVelocityQuantityEl.innerHTML = `[${velocity[0].toFixed(1)}, ${velocity[1].toFixed(1)}, ${velocity[2].toFixed(1)}] ${magnitude(velocity).toFixed(1)}`;
-      massAccelerationQuantityEl.innerHTML = `[${acceleration[0].toFixed(1)}, ${acceleration[1].toFixed(1)}, ${acceleration[2].toFixed(1)}] ${magnitude(acceleration).toFixed(1)}`;
-
-      const {totalSouls} = stats;
-      soulsQuantityEl.innerHTML = `${totalSouls || 0} soul${totalSouls === 1 ? '' : 's'}`;
-
-      // const lookAtMass = universe[camera.lookAtIndex];
-      const lookAtMass = camera.lookAt;
-      lookAtMassNameEl.innerHTML = lookAtMass.name;
-
-      lookAtMassQuantityEl.innerHTML = lookAtMass.mass.toFixed(1);
-
-      const lookAtDistance = magnitude(sub(dd, lookAtMass.position, position));
-      lookAtDistanceQuantityEl.innerHTML = lookAtDistance.toFixed(1);
-
-      if (camera.lookAtIndex > 0) {
-        const lookAtTrumpDistance = magnitude(sub(dd, lookAtMass.position, trump.position));
-        lookAtTrumpDistanceQuantityEl.innerHTML = lookAtTrumpDistance.toFixed(1);
-
-        currentLookAtEl.classList.remove('is-trump');
-      }
-      else {
-        currentLookAtEl.classList.add('is-trump');
-      }
-
-      guiUpdates.forEach(update => update());
-    }
-
-    statsEl.addEventListener('click', toggleStats);
-    overviewEl.addEventListener('click', toggleOverview);
-
     const guiUpdates = [];
-
-    function toggleStats() {
-      if (statsEl.classList.contains('show')) {
-        statsEl.classList.remove('show');
-        statsEl.innerHTML = 'Stats';
-        guiUpdates.splice(0); // !
-      }
-      else {
-        statsEl.classList.add('show');
-        guiUpdates.push(() => statsEl.innerHTML = getStats());
-
-        enterState('start');
-        // camera.lookAtIndex = 0;
-        camera.lookAt = trump;
-        // camera.positionIndex = 0;
-        camera.targetOffset =  views.overview;
-      }
-
-      function getStats() {
-        return JSON.stringify(stats, undefined, 2);
-        // return stats.map(target => target.map(relation => relation.map(object => )))
-      }
-    }
-
-    const last = [];
-    function toggleOverview() {
-      if (overviewEl.classList.contains('show')) {
-        overviewEl.classList.remove('show');
-
-        overviewEl.innerHTML = 'Overview';
-
-        const [lookAt, follow, targetOffset] = last.pop();
-        // const [lookAtIndex, positionIndex, targetOffset] = last.pop();
-
-        camera.follow = follow;
-        camera.lookAt = lookAt;
-
-        // camera.lookAtIndex = lookAtIndex;
-        // camera.positionIndex = positionIndex;
-        copy(camera.targetOffset, targetOffset);
-      }
-      else {
-        overviewEl.classList.add('show');
-
-        overviewEl.innerHTML = 'Orbit';
-
-        last.push([camera.lookAt, camera.follow, vnew(camera.targetOffset)]);
-
-        enterState('start');
-
-        camera.follow = trump;
-        camera.lookAt = trump;
-
-        // camera.lookAtIndex = 0;
-        // camera.positionIndex = 0;
-        camera.targetOffset = views.overview;
-      }
-    }
 
     let given, needsStart;
 
-    stateEl.addEventListener('click', stateGiven);
+    // stateEl.addEventListener('click', stateGiven);
 
-    setTimeout(stateGiven, 1000 * 60);
+    // setTimeout(stateGiven, 1000 * 60);
+    setTimeout(stateGiven, 0);
 
     function stateGiven() {
       given = true;
-      stateEl.classList.add('given');
-      noticeEl.classList.add('given');
+      // stateEl.classList.add('given');
+      // noticeEl.classList.add('given');
       if (needsStart) needsStart();
     }
 
-    tagEl.addEventListener('click', () => commandsEl.classList.toggle('show'));
-    helpEl.addEventListener('click', () => helpContentEl.classList.toggle('show'));
-
-    previousLookAtEl.addEventListener('click', event => {
-      event.stopPropagation();
-
-      return previousLookAt();
-    });
-
-    nextLookAtEl.addEventListener('click', event => {
-      event.stopPropagation();
-
-      return nextLookAt();
-    });
-
-    function nextLookAt(allowSelf) {
-      const index = (universe.indexOf(camera.lookAt) + 1) % universe.length,
-            mass = universe[index];
-
-      x(allowSelf, mass, nextLookAt);
-    }
-
-    function previousLookAt(allowSelf) {
-      const index = ((universe.indexOf(camera.lookAt) - 1) + universe.length) % universe.length,
-            mass = universe[index];
-
-      x(allowSelf, mass, previousLookAt);
-    }
-
-    function x(allowSelf, mass, fn) {
-      if(!allowSelf && camera.follow === mass) fn(true);
-      else camera.lookAt = mass;
-    }
-
-    function nextFollow(allowSelf) {
-      const index = (universe.indexOf(camera.follow) + 1) % universe.length,
-            mass = universe[index];
-
-      y(allowSelf, mass, nextFollow);
-    }
-
-    function previousFollow(allowSelf) {
-      const index = ((universe.indexOf(camera.follow) - 1) + universe.length) % universe.length,
-            mass = universe[index];
-
-      y(allowSelf, mass, previousFollow);
-    }
-
-    function y(allowSelf, mass, fn) {
-      if(!allowSelf && camera.follow === mass) fn(true);
-      else camera.follow = mass;
-    }
 
 
     module.exports = {
       editorPanel: false,
-      plugins: ['core'],
+      plugins: ['core', 'cursor', 'controls'],
       callback: start,
       callback: jsxboxCallback,
       camera: {far: 1000000},
@@ -1404,10 +905,10 @@
         // 'overview': () => {camera.lookAtIndex = 0; camera.positionIndex = 0; camera.targetOffset =  views.overview;},
         // 'frontview': () => {camera.lookAtIndex = 0; camera.positionIndex = 0; camera.targetOffset =  views.frontview;},
         // 'sideview': () => {camera.lookAtIndex = 0; camera.positionIndex = 0; camera.targetOffset =  views.sideview;},
-        'lookAtTrump': () => camera.lookAt = trump,
-        'overview': () => {camera.lookAt = trump; camera.follow = trump; camera.targetOffset =  views.overview;},
-        'frontview': () => {camera.lookAt = trump; camera.follow = trump; camera.targetOffset =  views.frontview;},
-        'sideview': () => {camera.lookAt = trump; camera.follow = trump; camera.targetOffset =  views.sideview;},
+        // 'lookAtTrump': () => camera.lookAt = sun,
+        // 'overview': () => {camera.lookAt = sun; camera.follow = sun; camera.targetOffset =  views.overview;},
+        // 'frontview': () => {camera.lookAt = sun; camera.follow = sun; camera.targetOffset =  views.frontview;},
+        // 'sideview': () => {camera.lookAt = sun; camera.follow = sun; camera.targetOffset =  views.sideview;},
         'speed+': () => ++stepsPerSecond,
         'speed-': () => stepsPerSecond = Math.max(1, stepsPerSecond - 1),
         'ticks+': () => ++ticksPerStep,
@@ -1494,7 +995,8 @@
           }
         },
         'prevMass': () => {
-          nextFollow();
+          centeredMassIndex = (centeredMassIndex === 0 ? universe.length : centeredMassIndex) - 1
+          // nextFollow();
           // const index = universe.indexOf(camera.follow);
 
           // camera.follow =
@@ -1502,25 +1004,37 @@
           // return camera.positionIndex === 0 ? camera.positionIndex = universe.length - 1 : camera.positionIndex--;
         },
         'nextMass': () => {
-          previousFollow();
+          centeredMassIndex = (centeredMassIndex + 1) % universe.length;
+          // previousFollow();
           // return camera.positionIndex = (camera.positionIndex + 1) % universe.length;
         }
       }
     };
 
+    function getLargestMass() {
+      let largest = universe[0];
+      for (let i = 1; i < universe.length; i++) {
+        const mass = universe[i];
+        if (mass.mass > largest.mass) largest = mass;
+      }
+      return largest;
+    }
 
-
-
-
-
-    function centerOnTrump() {
-      const {position: tp} = trump;
+    function centerOnSun() {
+      const {position: tp} = sun;
       for (let i = universe.length - 1; i >= 0; i--) {
         const {position: p} = universe[i];
         sub(p, p, tp);
       }
     }
 
+    function centerOn(msss) {
+      const {position: tp} = msss;
+      for (let i = universe.length - 1; i >= 0; i--) {
+        const {position: p} = universe[i];
+        sub(p, p, tp);
+      }
+    }
 
     class Clock {
       constructor(ticksPerStep) {
@@ -1543,13 +1057,12 @@
 
     function start(view) {
       needsStart = undefined; // global!!
-      const socket = createSocket(() => uievents.push(['connected']));
 
       const run = runner(universe, new Clock());
 
-      enterState('start');
-
       window.requestAnimationFrame(animate);
+
+      setupUI(document.getElementsByTagName('ui')[0], 'state', {create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}])});
 
       function runner(universe, clock, maxRunTime = 1000 / 10, GUIUpdateRate = 100) {
         const {startTime} = clock;
@@ -1561,25 +1074,17 @@
         return (runTime = clock.currentTime) => {
           const t = clock.ticksTo(runTime);
 
-          centerOnTrump();
           while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
             handleEvents();
             tick();
             currentTick++;
           }
 
-          if ((currentTime - lastGUIUpdate) > 100) {
-            updateMassesGUI();
-            lastGUIUpdate = currentTime;
-          }
+          centerOn(universe[0]);
+          // centerOn(getLargestMass());
 
-          if (t - currentTick > 0) {
-            catchUpQuantityEl.parentElement.style.display = 'block';
-            catchUpQuantityEl.innerHTML = currentTick - t;
-          }
-          else {
-            catchUpQuantityEl.parentElement.style.display = 'none';
-          }
+          // universeEl.innerText = JSON.stringify(universe, (key, value) => Array.isArray(value) ? `[${value.join(', ')}]` : value, 2);
+          // universeEl.innerText = JSON.stringify(universe);
         };
 
         function handleEvents() {
@@ -1609,7 +1114,7 @@
       //     const dt = runTime - startTime,
       //           t = Math.floor((dt / 1000) * ticksPerStep);
 
-      //     centerOnTrump();
+      //     centerOnSun();
       //     let currentTime;
       //     while (currentTick < t && ((currentTime = new Date().getTime()) - runTime) < maxRunTime) {
       //       handleEvents();
@@ -1658,110 +1163,34 @@
           (uuievents[event[0]] || (() => {}))(event, view);
         }
 
-        camera.update();
+        // for (let i = 0; i < uievents.length; i++) {
+        //   const [name, ...args] = uievents[i];
 
-        void trumpTweetEl.offsetWidth;
+        //   if (name === 'tweet') trumpTweetEl.classList.add('show');
+        //   else if (name === 'absorbed') {
+        //     const [absorbed, by] = args;
 
-        for (let i = 0; i < uievents.length; i++) {
-          const [name, ...args] = uievents[i];
+        //     absorbedEl.classList.add('show');
+        //     absorbedNameEl.innerHTML = absorbed;
+        //     absorbedByNameEl.innerHTML = by;
+        //   }
+        //   else if (name === 'absorbedBy') {
+        //     const [by] = args;
 
-          if (name === 'tweet') trumpTweetEl.classList.add('show');
-          else if (name === 'absorbed') {
-            const [absorbed, by] = args;
+        //     absorbedByEl.classList.add('show');
+        //     absorbedByByNameEl.innerHTML = by;
+        //   }
+        //   else if (name === 'poof') {
+        //     const [poof, mass] = args;
 
-            absorbedEl.classList.add('show');
-            absorbedNameEl.innerHTML = absorbed;
-            absorbedByNameEl.innerHTML = by;
-          }
-          else if (name === 'absorbedBy') {
-            const [by] = args;
-
-            absorbedByEl.classList.add('show');
-            absorbedByByNameEl.innerHTML = by;
-          }
-          else if (name === 'poof') {
-            const [poof, mass] = args;
-
-            poofEl.classList.add('show');
-          }
-        }
+        //     poofEl.classList.add('show');
+        //   }
+        // }
 
         uievents.splice(0);
 
         window.requestAnimationFrame(animate);
       }
-    }
-
-    function createSocket(onopen = () => {}) {
-      try {
-        const socket = window.location.hostname === 'trumporb.it' ? new WebSocket(`ws://ws.trumporb.it:8080`) : new WebSocket(`ws://104.236.242.248:8080`);
-        let opened;
-        socket.onopen = () => {
-          opened = true;
-          resetReconnectTimer();
-          onopen();
-        };
-
-        socket.onmessage = (data, flags) => {
-          const parts = (data.data || '').split(',');
-          const name = parts[0];
-
-          switch (name) {
-            case 'r':
-              handle('retweet+', parts);
-              break;
-            case 't':
-              handle('tweet', parts);
-              break;
-            case 'o':
-              events.push(['observer+', parts[1]]);
-              break;
-            case 'o-':
-              events.push(['observer-', parts[1]]);
-              break;
-          }
-        };
-
-        socket.onclose = () => {
-          if (opened) window.location.reload();
-        };
-
-        socket.onerror = event => {
-          console.log('error', event);
-
-          const waitTime = getReconnectTimer();
-          console.log(`attempting reconnect in ${waitTime} ms`);
-          setTimeout(() => createSocket(onopen), waitTime);
-        };
-
-        return socket;
-      }
-      catch (e) {
-        console.log('caught!', e);
-      }
-    }
-
-    let reconnectTimer = 1000;
-    function resetReconnectTimer() {
-      reconnectTimer = 1000;
-    }
-
-    function getReconnectTimer() {
-      const timer = reconnectTimer;
-      reconnectTimer *= 1.5;
-      reconnectTimer = Math.min(60 * 1000, reconnectTimer);
-      return timer;
-    }
-
-    function handle(name, parts) {
-      const id = parts[1];
-      events.push([name, id]);
-
-      const likes = parseInt(parts[2], 10);
-      const followers = parseInt(parts[3], 10);
-
-      if (likes > 0) events.push(['like+', id, likes]);
-      events.push(['follower+', followers]);
     }
 
     function newv (s) {
@@ -1970,131 +1399,33 @@
       savedColor[0] = colors[selectedMassIndex][0];
       savedColor[1] = colors[selectedMassIndex][1];
       savedColor[2] = colors[selectedMassIndex][2];
+      uievents.push(['newmass']);
       // colors[selectedMassIndex][0] = 0;
       // colors[selectedMassIndex][1] = 255;
       // colors[selectedMassIndex][2] = 0;
     }
   </script>
-
-  <hud>
-    <start>
-      <enter-looking></enter-looking>
-      <enter-moving></enter-moving>
-    </start>
-
-    <looking>
-      <current-look-at>
-        <previous-look-at>&lt;</previous-look-at>
-        <display>
-          Looking At
-          <look-at-mass-name></look-at-mass-name>
-          <table>
-            <tbody>
-              <tr><td>Mass:</td><td><look-at-mass-quantity></look-at-mass-quantity></td></tr>
-              <tr><td>Distance to <mass-name></mass-name>:</td><td><look-at-distance-quantity></distance-quantity></td></tr>
-              <tr class="distance"><td>Distance to <trump>TRUMP</trump>:</td><td><look-at-trump-distance-quantity></distance-quantity></td></tr>
-            </tbody>
-          </table>
-        </display>
-        <next-look-at>&gt;</next-look-at>
-      </current-look-at>
-      <orbit-statistics><orbit-statistics-quantity></orbit-statistics-quantity> in orbit</orbit-statistics>
-      <moving-trigger></moving-trigger>
-    </looking>
-
-    <moving>
-      <current-mass>
-        <display>
-          <mass-name></mass-name>
-          <data>
-            <table>
-              <tbody>
-                <tr><td>Mass:</td><td><mass-quantity></mass-quantity></td></tr>
-                <tr><td>Distance to <trump>TRUMP</trump>:</td><td><distance-quantity></distance-quantity></td></tr>
-              </tbody>
-            </table>
-            <table>
-              <tbody>
-                <tr><td>V:</td><td><mass-velocity-quantity></mass-velocity-quantity></td></tr>
-                <tr><td>A:</td><td><mass-acceleration-quantity></mass-acceleration-quantity></td></tr>
-              </tbody>
-            </table>
-          </data>
-        </display>
-      </current-mass>
-
-      <velocity-controls>
-        <others>
-          <up>
-            <yp>⇧</yp></up>
-          <x>
-            <xn>⇦</xn>
-            <xp>⇨</xp>
-          </x>
-          <down>
-            <zn>⇧</zn>
-            <yn>⇩</yn>
-            <zp>⇩</zp>
-          </down>
-        </others>
-      </velocity-controls>
-    </moving>
-
-
-    <catch-up><catch-up-quantity></catch-up-quantity> ticks behind</catch-up>
-    <trump-tweet>
-     <warning><trump>TRUMP</trump> has tweeted, watch out!</warning>
-     <info>Don't worry, CNN is orbiting it!</info>
-    </trump-tweet>
-    <absorbed><absorbed-name></absorbed-name> was absorbed by <absorbed-by-name></absorbed-by-name>!</absorbed>
-    <absorbed-by>You Were Absorbed By <absorbed-by-by-name></absorbed-by-by-name>!</absorbed-by>
-    <poof>You ran out of mass!</poof>
-    <commands></commands>
-
-    <tag><trump>TRUMP</trump>orbit <brand>alpha preview</brand> <version>uncommitted</version></tag>
-    <souls><souls-quantity></souls-quantity></souls>
-    <overview>Overview</overview>
-    <stats>Stats</stats>
-    <help>?</help>
-    <help-content>
-     O 'overview
-     F 'frontview
-     S 'sideview
-     L 'lookAtTrump
-     ] 'nextMass
-     [ 'prevMass
-     T 'fakeTweet
-     R 'fakeRetweet
-     K 'fakeLike
-    ENTER 'newMass
-    SPACE 'change movement target
-     A 'decrease target x velocity (x-)
-     D 'increase target x velocity (x+)
-     W 'decrease target z velocity (z-)
-     V 'increase target z velocity (z+)
-     Q 'increase target y velocity (y-)
-     Z 'decrease target y velocity (y+)
-     . 'speed+
-     , 'speed-
-     0 'ticks+
-     9 'ticks-
-    </help-content>
-
-    <ask><a href="#give">Give a Gift</a></ask>
-  </hud>
 </mathbox>
 
-<state>THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THIS SOFTWARE OR THE USE OR OTHER DEALINGS IN THIS
-SOFTWARE.</state>
+<universe></universe>
 
-<notice>
-  <screen></screen>
-  <message>entering <trump>TRUMP</trump> orbit<message>
-  <standby>please standby</standby>
-  <failure>you are failing to connect</failure>
-</notice>
+<ui></ui>
+
+<made-with>
+    <span>Made With</span>
+    <components>
+      <mathbox>Mathbox</mathbox>
+      <three>THREE.js</three>
+      <preact>preact</preact>
+      <npm>npm</npm>
+      <sublime>Sublime Text</sublime>
+      Linux
+      Babel
+      Browserify
+      Fedora
+      Intel
+      Google
+      Soundcloud
+      many others...
+    </components>
+</made-with>

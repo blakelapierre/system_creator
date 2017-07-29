@@ -811,7 +811,7 @@ trump {
     }
   }
 
-  state {
+  made-with {
     position: fixed;
     top: 0;
     left: 0;
@@ -819,6 +819,7 @@ trump {
     bottom: 0;
 
     display: flex;
+    display: none;
 
     justify-content: center;
     align-items: center;
@@ -840,8 +841,7 @@ trump {
     cursor: pointer;
 
     &.given {
-      transform: scale(0);
-      animation: fade-background-out 1s ease-in-out, fade-color-out 1s ease-in-out;
+      display: none;
     }
   }
 
@@ -881,10 +881,7 @@ trump {
         }
 
         message {
-          animation: fade-color-out 2*2.75s ease-in-out forwards;
-          trump {
-            animation: fade-color-out 2*3s ease-in-out forwards;
-          }
+          animation: fade-color-out 2s ease-in-out forwards;
         }
 
         standby, failure {
@@ -916,14 +913,7 @@ trump {
         align-items: center;
         justify-content: center;
 
-        animation: fade 5s ease-out forwards;
-
-        trump {
-          margin: 0 1vw;
-          font-size: 7vw;
-
-          animation: trump-fade 5s ease-out forwards;
-        }
+        animation: fade 2s ease-out forwards;
       }
 
       standby {
@@ -1114,4 +1104,61 @@ mathbox {
       }
     }
   }
+}
+
+universe {
+  position: fixed;
+
+  top: 25%;
+  left: 5%;
+  right: 70%;
+  bottom: 25%;
+
+  color: #fff;
+
+  overflow-y: visible;
+  overflow-x: auto;
+}
+
+controls {
+  position: fixed;
+
+  bottom: 0;
+  right: 0;
+
+  padding: 0.5em;
+
+  display: flex;
+  flex-direction: column;
+
+  color: #fff;
+  border-left: solid 1px #48c;
+  border-top: solid 1px #48c;
+
+  table {
+    flex: 1 1 auto;
+  }
+
+  button {
+    flex: 1 1 auto;
+  }
+
+  input {
+    width: 3em;
+
+    text-align: right;
+
+    &.mass {
+      width: 9em;
+    }
+  }
+}
+
+clock {
+  color: #fff;
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
 }

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#try running: npm install -g watchify browser-sync babel-cli uglify-js
+echo "Building Handler..." && \
+
+mkdir -p dist && \
+
+echo "Building CSS..." && \
+lessc src/style.less src/style.css && \
+
+echo "Transpiling..." && \
+babel --presets es2015 --source-type 'module' --out-dir '.transpiled' src && \
+
+echo "Browserifying..." && \
+browserify .transpiled/handlers/custom/index.js > dist/handler.min.js && \
+browserify .transpiled/loadPreact.js > dist/loadPreact.js && \
+
+echo "Built handler.js"
