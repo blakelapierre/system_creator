@@ -234,6 +234,12 @@
           events = [],
           uievents = [];
 
+    const state = {
+        universe,
+        eventLog: [],
+        uieventLog: []
+    };
+
     let oldTweets;
 
     let pendingTweetSpawn = 0;
@@ -719,11 +725,7 @@
 
       function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
         if (collisions.length === 0) {
-          // const threshold = Math.sqrt(s1 / 4 + s2 / 4) / 4;
-          const threshold = (s1 + s2) / 75;
-          // const threshold = Math.sqrt(s1 / 8 + s2 / 8) / 8;
-          // const threshold = s1[0] / 10 + s2[0] / 10;
-          // const threshold = (s1[0] + s2[0]) / 2;
+          const threshold = (s1 + s2) / 100;
           if (distance < threshold) { // better ordering of checks?
             console.log(distance, threshold, s1, s2);
             if (m1 <= m2) {
@@ -748,7 +750,6 @@
 
       function resolveCollisions() {
         for (let i = collisionList.length - 1; i >= 0; i--) {
-          console.log('collision', collisionList[i]);
           const [smallerMass, greaterMass] = collisionList[i];
 
           greaterMass.mass += smallerMass.mass;
@@ -758,11 +759,6 @@
           greaterMass.color[0] = (1 - ratio) * greaterMass.color[0] + ratio * smallerMass.color[0];
           greaterMass.color[1] = (1 - ratio) * greaterMass.color[1] + ratio * smallerMass.color[1];
           greaterMass.color[2] = (1 - ratio) * greaterMass.color[2] + ratio * smallerMass.color[2];
-
-          // greaterMass.color[0] = (greaterMass.color[0] + smallerMass.color[0]) / 2;
-          // greaterMass.color[1] = (greaterMass.color[1] + smallerMass.color[1]) / 2;
-          // greaterMass.color[2] = (greaterMass.color[2] + smallerMass.color[2]) / 2;
-
 
           div(greaterMass.velocity,
             add(greaterMass.velocity,
@@ -805,7 +801,6 @@
 
           sizes[greaterIndex] = greaterMass.size;
 
-console.log('removing', smallerIndex);
           universe.splice(smallerIndex, 1);
           positions.splice(smallerIndex, 1);
           velocities.splice(smallerIndex, 1);
@@ -827,9 +822,6 @@ console.log('removing', smallerIndex);
       stats[target] = stats[target] || {};
       stats[target][relation] = stats[target][relation] || {};
       return (stats[target][relation][object] = (stats[target][relation][object] || 0) + 1);
-      // return (stats[target][relation][object] = ((stats[target][relation] = (stats[target] = stats[target] || {})[relation] || {})[object] || 0) + 1);
-
-      // stats[target][relation][object] = (stats[target][relation][object] || 0) + 1;
     }
 
     function setStat(target, value) {
@@ -856,8 +848,6 @@ console.log('removing', smallerIndex);
       // noticeEl.classList.add('given');
       if (needsStart) needsStart();
     }
-
-
 
     module.exports = {
       editorPanel: false,
@@ -1052,20 +1042,20 @@ console.log('removing', smallerIndex);
     }
 
     function jsxboxCallback(view) {
-      if (given) start(view); // global!!
-      else needsStart = () => start(view);
+      if (given) start(view, state); // global!!
+      else needsStart = () => start(view, state);
     }
 
-    function start(view) {
+    function start(view, state) {
       needsStart = undefined; // global!!
 
-      const run = runner(universe, new Clock());
+      const run = runner(state, new Clock());
 
       window.requestAnimationFrame(animate);
 
       setupUI(document.getElementsByTagName('ui')[0], 'state', {create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}])});
 
-      function runner(universe, clock, maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
+      function runner(state, clock, maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
         const {startTime} = clock;
 
         let currentTick = 0,
@@ -1076,7 +1066,7 @@ console.log('removing', smallerIndex);
           const t = clock.ticksTo(runTime);
 
           while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
-            handleEvents();
+            handleEvents(state.eventLog);
             tick();
             currentTick++;
           }
@@ -1088,7 +1078,11 @@ console.log('removing', smallerIndex);
           // universeEl.innerText = JSON.stringify(universe);
         };
 
-        function handleEvents() {
+        function handleEvents(eventLog) {
+          if (events.length === 0) return;
+
+          eventLog.push([currentTick, events.slice()]);
+
           for (let i = 0; i < events.length; i++) {
             const event = events[i];
 
@@ -1157,6 +1151,8 @@ console.log('removing', smallerIndex);
 
       function animate() {
         run();
+
+        // state.uieventLog.push([currentTick, uievents.slice()]);
 
         for (let i = 0; i < uievents.length; i++) {
           const event = uievents[i];
