@@ -5,9 +5,11 @@ class Controls extends Component {
     super(props);
 
     this.state = {
-      position: [0, 0, 5],
+      position: [0, 0, 3],
       velocity: [1, 0, 0],
-      mass: 100,
+      massBase: 100,
+      massExponent: 0,
+      get mass() { return this.massBase * Math.pow(10, this.massExponent); },
       color: [0.5, 0.5, 2, 1]
     };
   }
@@ -73,7 +75,9 @@ class Controls extends Component {
             <tr>
               <td>Mass: </td>
               <td>
-                <input class="mass" type="number" min="1" step="100" value={this.state.mass} onChange={({target: {value}}) => this.setState({mass: parseFloat(value, 10)})} />
+                <input class="mass" type="number" min="1" step="100" value={this.state.massBase} onChange={({target: {value}}) => this.setState({massBase: parseFloat(value, 10)})} />
+                x 10 ^
+                <input class="mass-exponent" type="number" min="0" step="1" value={this.state.massExponent} onChange={({target: {value}}) => this.setState({massExponent: parseFloat(value, 10)})} />
               </td>
             </tr>
             <tr>
