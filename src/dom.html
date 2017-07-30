@@ -167,36 +167,9 @@
     const eevents = {
       // external
       'newmass': newMass,
-      'observer+': addObserver,
-      'observer-': removeObserver,
-      'tweet': addTweet,
-      'like': addLike,
-      'retweet': addRetweet,
-      'follower-': event => {}, //?
-      'follower': addFollower,
-
-      'follower+': incrementFollowers,
-      'like+': incrementLikes,
-      'retweet+': incrementRetweets,
-
-      // controls
-      '+xn': event => setBoost(-vBoost),
-      '-xn': event => unsetBoost(-vBoost),
-      '+xp': event => setBoost(vBoost),
-      '-xp': event => unsetBoost(vBoost),
-      '+yn': event => setBoost(0, -vBoost),
-      '-yn': event => unsetBoost(0, -vBoost),
-      '+yp': event => setBoost(0, vBoost),
-      '-yp': event => unsetBoost(0, vBoost),
-      '+zn': event => setBoost(0, 0, -vBoost),
-      '-zn': event => unsetBoost(0, 0, -vBoost),
-      '+zp': event => setBoost(0, 0, vBoost),
-      '-zp': event => unsetBoost(0, 0, vBoost),
 
       // internal
-      'emission': emission,
       'absorbed': absorbed,
-      'oldTweets': addOldTweets,
       'poof': poof
     };
 
@@ -255,7 +228,13 @@
       masses,
       sizes,
       colors
-    } = createUniverse([sun])
+    } = createUniverse([sun]);
+
+    const state = {
+        universe,
+        eventLog: [],
+        uieventLog: []
+    };
 
 
     const tweets = [],
@@ -266,12 +245,6 @@
           observers = [],
           emissions = [],
           boostings = [];
-
-    const state = {
-        universe,
-        eventLog: [],
-        uieventLog: []
-    };
 
     let oldTweets;
 
@@ -286,22 +259,6 @@
           EMISSION_SCALE_FACTOR = 5;
 
     const vBoost = 10;
-
-    // const [
-    //   positions,
-    //   velocities,
-    //   accelerations,
-    //   gravities,
-    //   masses,
-    //   sizes,
-    //   colors
-    // ] = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
-
-    // function map(list, properties) {
-    //   return properties.map(p => list.map(item => item[p]));
-    // }
-
-
 
 
     function addMass(newMass) {
@@ -333,133 +290,9 @@
       setStat('masses', universe.length);
     }
 
-    let totalObserverCount = 0;
-    function addObserver([_, totalConnected]) {
-      if (observers.length < MAX_OBSERVERS) {
-        const {position: tp, velocity: tv} = sun;
-        const observer = addMass(new Observer(1000, COLORS.observer.slice(), ORBIT_PARAMETERS.observer.p(tp, tv), ORBIT_PARAMETERS.observer.v(tp, tv)));
-
-        observer.name = `Observer ${totalObserverCount++}`;
-
-        observers.push(observer);
-      }
-      else {
-        const observer = observers[Math.round(Math.random() * (observers.length - 1))];
-        observer.name = `Observer ${totalObserverCount++}`;
-        observer.mass++;
-      }
-
-      setStat('totalSouls', totalConnected);
-    }
-
-    function removeObserver([_, totalConnected]) {
-      setStat('totalSouls', totalConnected);
-    }
-
-    function addOldTweets(event) {
-      console.log('adding old tweets', event);
-      const {position: tp, velocity: tv} = sun;
-      oldTweets = new OldTweets((oldTweets || {mass: 10}).mass, [0, 1, 1.2, 1], ORBIT_PARAMETERS.oldTweets.p(tp, tv), ORBIT_PARAMETERS.oldTweets.v(tp, tv));
-
-      addMass(oldTweets);
-      tweets.push(oldTweets);
-    }
-
-    function addTweet(event) {
-      // this should be calculated based on current sun mass (and, maybe, positions/velocities of orbiting masses?)
-      const {position: tp, velocity: tv} = sun;
-
-      const tweet = new Tweet(500, COLORS.tweet,
-                                   ORBIT_PARAMETERS.tweet.p(tp, tv),
-                                   ORBIT_PARAMETERS.tweet.v(tp, tv)),
-            cnn = new Media('CNN', 5, COLORS.cnn,
-                                      ORBIT_PARAMETERS.media.p(tp, tv),
-                                      ORBIT_PARAMETERS.media.v(tp, tv));
-
-      tweet.tweetID = event[1] || 'fake';
-
-      addMass(tweet);
-      addMass(cnn);
-
-      tweets.push(tweet);
-      media.push(cnn);
-
-      tweetMap[tweet.tweetID] = tweet;
-
-      uievents.push(['tweet']);
-    }
-
-    function addRetweet(event) {
-      addTweetSpawn(tweetMap[event[1]] || oldTweets, ReTweet, 1, COLORS.retweet);
-    }
-
-    function addLike(event) {
-      addTweetSpawn(tweetMap[event[1]] || oldTweets, Like, 1, COLORS.like);
-    }
-
-    function addFollower(event) {
-      addTweetSpawn(oldTweets, Follower, 1, COLORS.follower);
-    }
-
-    const spread = 700;
-
-    function addTweetSpawn(tweet, constructor, mass, color) {
-      if (!tweet) throw new Error('No tweet!!!!!!@!');
-
-      const {position: p} = tweet,
-            {position: tp, velocity: tv} = universe[0];
-
-      const x = 20;
-
-      const d = [0, 0, 0];
-
-      sub(d, tp, p);
-
-      const m = magnitude(d);
-
-      const position = [p[0] + d[0] / m * (50 + spread * Math.random())
-                       ,p[1] + d[1] / m * (50 + spread * Math.random())
-                       ,p[2] + d[2] / m * (50 + spread * Math.random())];
-
-      const spawn = new constructor(mass, color, position,
-                                  [tv[0] + d[0]/x, tv[1] + d[1]/x, tv[2] + d[2]/x]);
-      tweet.mass += spawn.mass;
-
-      addMass(spawn);
-      tweetSpawn.push(spawn);
-      pendingTweetSpawn--;
-    }
-
-    function emission ([_, mass, emissionDirection]) {
-      const {position: p, velocity: v} = mass;
-
-      const emission = mass.mass * 0.01 / ticksPerStep;
-
-      scale(dd, emissionDirection, mass.collisionSize / 30); // why does this need ~30 here?
-
-      const e = addMass(new Emission(emission, COLORS.observer, add([0, 0, 0], mass.position, dd), add([0, 0, 0], newv(mass.velocity), scale(dd, dd, EMISSION_SCALE_FACTOR))));
-
-      emissions.push(e);
-    }
 
     function absorbed(event) {
       uievents.push(event);
-    }
-
-    function incrementLikes([_, id, likes]) {
-      const tweet = tweetMap[id] || oldTweets;
-      tweet.likes += likes;
-      spawningTweets.add(tweet);
-    }
-
-    function incrementRetweets([_, id]) {
-      const tweet = tweetMap[id] || oldTweets;
-      tweet.retweets++;
-      spawningTweets.add(tweet);
-    }
-
-    function incrementFollowers([_, followers]) {
-      oldTweets.followers += followers;
     }
 
     function poof([_, mass]) {
@@ -486,37 +319,6 @@
       colors.splice(index, 1);
     }
 
-    function setBoost(x = 0, y = 0, z = 0) {
-      console.log('setBoost', x, y, z);
-      const mass = sun,
-            {boost} = mass;
-
-      add(boost, boost, [x, y, z]);
-
-      console.log(boost);
-
-      if (boostings.indexOf(mass) === -1) boostings.push(mass); // more efficient way?
-    }
-
-    function unsetBoost(x = 0, y = 0, z = 0) {
-      console.log('unsetBoost', x, y, z);
-      const mass = sun,
-            {acceleration, boost} = mass;
-
-      set(acceleration, 0, 0, 0);
-      sub(boost, boost, [x, y, z]);
-
-      console.log(boost);
-
-      if (boost[0] === 0 && boost[1] === 0 && boost[2] === 0) {
-        console.log('removing');
-        const index = boostings.indexOf(mass);
-        if (index > -1) boostings.splice(index, 1);
-      }
-    }
-
-
-    let trumpScaleFactor = 5;
     <root>
       <camera proxy={true}
               position={[0, 5, 0]}
@@ -562,119 +364,10 @@
     function tick() {
       currentTick++;
 
-      updateBoosts();
-      updateEmissions();
-      updateTweetSpawn();
       positionHalfTick();
       updateGravities();
       updateVelocities();
       resolveCollisions();
-
-      function updateBoosts() {
-        boostings.forEach(mass => {
-          const {boost, position: p, velocity: v} = mass,
-                tp = sun.position,
-                d = normalize([0, 0, 0], sub(dd, p, tp)),
-                [x, y, z] = boost;
-
-          const u = [0, 0, 1];
-
-          const q = qFromUnitVectors(u, d);
-
-          const r = [0, 0, 0, 0],
-                i = qinv([0, 0, 0, 0], q);
-
-          qmult(r, qmult(r, q, [0, x, y, z]), qconj(i, q));
-
-          qunit(r, r);
-
-          // r seems to not be right here in some cases
-
-          if (mass.emissionCounter++ % EMISSION_RATE === 0) events.push(['emission', mass, [-r[1], -r[2], -r[3]]]);
-
-          scale(dd, [r[1], r[2], r[3]], EMISSION_SCALE_FACTOR * mass.mass / 2);
-
-          copy(mass.acceleration, dd);
-
-          mass.mass -= mass.mass * 0.01 / ticksPerStep;
-
-          if (mass.mass < 0.01) events.push(['poof', mass, i]);
-        });
-      }
-
-      function updateEmissions() {
-        for (let i = emissions.length - 1; i >= 0; i--) {
-          const emission = emissions[i],
-                {created} = emission;
-
-          if (currentTick - created > MAX_EMISSION_AGE) {
-            emissions.splice(i, 1);
-            const index = universe.indexOf(emission); // annoying lookup
-            universe.splice(index, 1);
-            positions.splice(index, 1);
-            velocities.splice(index, 1);
-            accelerations.splice(index, 1);
-            gravities.splice(index, 1);
-            masses.splice(index, 1);
-            sizes.splice(index, 1);
-            colors.splice(index, 1);
-          }
-        }
-      }
-
-      function updateTweetSpawn() {
-        const {position: tp, velocity: tv} = sun;
-
-        for (let i = 0; i < tweetSpawn.length; i++) {
-          const spawn = tweetSpawn[i],
-                {mass, position: p, velocity: v, created} = spawn;
-
-          const age = currentTick - created;
-          const x = Math.max(1, ticksPerStep * 1 / Math.min(ticksPerStep * 1, age));
-
-          sub(dd, tp, p);
-          add(v, tv, (div(dd, dd, x)));
-
-          if (age > MAX_TWEET_SPAWN_AGE) {
-            const index = universe.indexOf(spawn);
-            if (index === -1) {
-              uievents.push(['log', '-1!', age, spawn, universe]);
-            }
-            else {
-              collisionList.push([spawn, sun, index]);
-            }
-          }
-        }
-
-        resolveCollisions();
-
-        //lots of unnecessary stuff going on here sometimes
-        spawningTweets.forEach(tweet => {
-          if ((tweetSpawn.length + pendingTweetSpawn) >= MAX_TWEET_SPAWN) return false;
-
-          if (tweet.likes > 0 && Math.random() > 0.5) {
-            tweet.likes--;
-            events.push(['like', tweet.tweetID]);
-            pendingTweetSpawn++;
-          }
-
-          if ((tweetSpawn.length + pendingTweetSpawn) >= MAX_TWEET_SPAWN) return false;
-
-          if (tweet.retweets > 0 && Math.random() > 0.5) {
-            tweet.retweets--;
-            events.push(['retweet', tweet.tweetID]);
-            pendingTweetSpawn++;
-          }
-
-          if ((tweetSpawn.length + pendingTweetSpawn) >= MAX_TWEET_SPAWN) return false;
-
-          if (tweet.followers > 0 && Math.random() > 0.5) {
-            tweet.followers--;
-            events.push(['follower']);
-            pendingTweetSpawn++;
-          }
-        });
-      }
 
       function positionHalfTick() {
         for (let i = 0; i < universe.length; i++) {
@@ -758,7 +451,7 @@
 
       function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
         if (collisions.length === 0) {
-          const threshold = (s1 + s2) / 100;
+          const threshold = (s1 + s2) / 150;
           if (distance < threshold) { // better ordering of checks?
             console.log(distance, threshold, s1, s2);
             if (m1 <= m2) {
@@ -805,32 +498,9 @@
         for (let i = collisionList.length - 1; i >= 0; i--) {
           const [smallerMass, greaterMass, smallerIndex, greaterIndex] = collisionList[i];
 
-          if (smallerMass instanceof TweetSpawn) {
-            tweetSpawn.splice(tweetSpawn.indexOf(smallerMass), 1);
-          }
-          else if (smallerMass instanceof Tweet) {
-            tweets.splice(tweets.indexOf(smallerMass), 1);
-            delete tweetMap[smallerMass.tweetID];
-
-            if (smallerMass instanceof OldTweets) events.push(['oldTweets']);
-          }
-          else if (smallerMass instanceof Observer) {
-            observers.splice(observers.indexOf(smallerMass), 1);
-          }
-          else if (smallerMass instanceof Emission) {
-            emissions.splice(emissions.indexOf(smallerMass), 1);
-          }
-
           incrementStat(smallerMass.constructor.name, 'absorbedBy', greaterMass.constructor.name);
 
-          if (smallerMass instanceof Tweet ||
-              smallerMass instanceof Media ||
-              smallerMass instanceof Trump ||
-              greaterMass instanceof Tweet ||
-              greaterMass instanceof Media ||
-              greaterMass instanceof Trump) {
-            events.push(['absorbed', smallerMass.name, greaterMass.name]);
-          }
+          events.push(['absorbed', smallerMass.name, greaterMass.name]);
 
           sizes[greaterIndex] = greaterMass.size;
 
@@ -896,9 +566,6 @@
         [['Q'], '+up', '-up'],
         [['Z'], '+down', '-down'],
         [['H'], 'toggleHistory'],
-        [['T'], 'fakeTweet'],
-        [['R'], 'fakeRetweet'],
-        [['K'], 'fakeLike'],
         [['L'], 'lookAtTrump'],
         [['O'], 'overview'],
         [['F'], 'frontview'],
