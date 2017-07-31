@@ -1,8 +1,6 @@
-window.createSim = function() {
-  return createUniverse([new Mass(1000000, [255, 255, 0, 255])]);
-};
+window.createSim = () => createUniverse([new Mass(1000000, [255, 255, 0, 255])]);
 
-window.createRunner = function runner(state, clock = new Clock(state.ticksPerStep), maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
+window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, GUIUpdateRate = 100) => {
   const {startTime} = clock,
         {events} = state;
 
@@ -64,7 +62,7 @@ function createUniverse(existingMasses) {
     return properties.map(p => list.map(item => item[p]));
   }
 
-  return {universe, events, eevents, uievents, uuievents, positions, velocities, accelerations, gravities, masses, sizes, colors, currentTick: 0, collisionList: [], tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, eventLog: []};
+  return {universe, events, eevents, uievents, uuievents, positions, velocities, accelerations, gravities, masses, sizes, colors, currentTick: 0, collisionList: [], tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, fieldOfView: 120, eventLog: []};
 }
 
 function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick}) {
@@ -354,16 +352,19 @@ class Mass {
 }
 
 class Clock {
-  constructor(ticksPerStep) {
-    this.ticksPerStep = ticksPerStep;
+  constructor(state) {
+    this.state = state;
     this.startTime = this.currentTime;
   }
 
   get currentTime() { return new Date().getTime(); }
 
   ticksTo(time) {
-    const dt = time - this.startTime;
-    return Math.floor((dt / 1000) * this.ticksPerStep);
+    return this.ticksFor(time - this.startTime);
+  }
+
+  ticksFor(dt) {
+    return Math.floor((dt / 1000) * this.state.ticksPerStep * this.state.stepsPerSecond)
   }
 }
 

@@ -13,15 +13,15 @@
     }
 
 
-    const simState = window.createSim(),
-          {universe, positions, colors, sizes, eevents, uuievents} = simState;
+    let simState = window.createSim(),
+        {universe, positions, colors, sizes, eevents, uuievents, fieldOfView} = simState;
 
 
     <root>
       <camera proxy={true}
               position={[0, 5, 0]}
               lookAt={[0, 0, 0]}
-              fov={120}
+              fov={fieldOfView}
               up={[0, 1, 0]} />
       <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
                  scale={[1, 1, 1]}>
@@ -148,12 +148,40 @@
 
       const run = createRunner(state);
 
+      let stop = false;
+
       setupUI(
         document.getElementsByTagName('ui')[0],
         state,
         {
           create: ({position, velocity, mass, color}) => state.events.push(['newmass', {position, velocity, mass, color}]),
-          restart: () => console.log('should restart')
+          restart: () => {
+            simState = window.createSim();
+
+            window.universe = simState.universe;
+            window.positions = simState.positions;
+            window.colors = simState.colors;
+            window.sizes = simState.sizes;
+            window.eevents = simState.eevents;
+            window.uuievents = simState.uuievents;
+            window.fieldOfView = simState.fieldOfView;
+
+            view.select('#positions').set('data', positions).set('width', positions.length);
+            view.select('#colors').set('data', colors).set('width', colors.length);
+            // view.select('#velocities').set('data', velocities).set('width', velocities.length);
+            view.select('#sizes').set('data', sizes).set('width', sizes.length);
+
+            view.select('camera').set('fov', fieldOfView);
+
+            start(view, simState);
+
+            stop = true;
+          },
+          setStepsPerSecond: stepsPerSecond => state.stepsPerSecond = stepsPerSecond,
+          setFieldOfView: fov => {
+            console.log(fov, view.select('camera'));
+            view.select('camera').set('fov', fov)
+          }
         }
       );
 
@@ -170,7 +198,7 @@
 
         uievents.splice(0);
 
-        window.requestAnimationFrame(animate);
+        if (!stop) window.requestAnimationFrame(animate);
       }
     }
 
@@ -361,29 +389,6 @@
 
     function qunit(r, q) {
       return qdiv(r, q, qnorm(q));
-    }
-
-
-
-    // might want in the future, saves typing
-    function randomMass() {
-      addMass(new Mass(1, [255, 255, 0, 1], [universe[0].position[0] + Math.random() * 5000 - 2500, universe[0].position[1] + Math.random() * 5000 - 2500, universe[0].position[2] + Math.random() * 5000 - 2500], [Math.random() * 600 - 300, Math.random() * 600 - 300, Math.random() * 600 - 300]));
-    }
-
-    function unselectMass(selectedMassIndex) {
-      colors[selectedMassIndex][0] = savedColor[0];
-      colors[selectedMassIndex][1] = savedColor[1];
-      colors[selectedMassIndex][2] = savedColor[2];
-    }
-
-    function selectMass(selectedMassIndex) {
-      savedColor[0] = colors[selectedMassIndex][0];
-      savedColor[1] = colors[selectedMassIndex][1];
-      savedColor[2] = colors[selectedMassIndex][2];
-      uievents.push(['newmass']);
-      // colors[selectedMassIndex][0] = 0;
-      // colors[selectedMassIndex][1] = 255;
-      // colors[selectedMassIndex][2] = 0;
     }
   </script>
 </mathbox>

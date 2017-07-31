@@ -155,16 +155,18 @@ class Settings extends Component {
                 <input
                   type="number"
                   value={this.state.stepsPerSecond}
-                  onChange={({target: {value}}) => this.setState({stepsPerSecond: parseInt(value, 10)})} />
+                  onChange={({target: {value}}) => this.setState({stepsPerSecond: parseInt(value, 10)}) & actions['setStepsPerSecond'](parseInt(value, 10))} />
               </td>
             </tr>
             <tr>
               <td>Field Of View:</td>
               <td>
                 <input
-                  type="number"
+                  type="range"
+                  min="1"
+                  max="179"
                   value={this.state.fieldOfView}
-                  onChange={({target: {value}}) => this.setState({fieldOfView: parseInt(value, 10)})} /> degrees
+                  onChange={({target: {value}}) => this.setState({fieldOfView: parseInt(value, 10)}) & actions['setFieldOfView'](parseInt(value, 10))} /> degrees
               </td>
             </tr>
           </tbody>
