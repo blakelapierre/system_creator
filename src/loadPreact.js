@@ -17,7 +17,7 @@ class Create extends Component {
   render({state, actions}) {
     console.log('controls', state, actions);
     return (
-      <controls>
+      <create>
         <table>
           <tbody>
             <tr>
@@ -104,13 +104,73 @@ class Create extends Component {
           </tbody>
         </table>
         <button onClick={() => actions.create(this.state)}>Create</button>
-      </controls>
+      </create>
     );
 
     function rgbToHex(c) {
       const hex = c.toString(16);
       return (hex.length == 1 ? '0' : '') + hex;
     }
+  }
+}
+
+class Settings extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      gravityConstant: 6.67408e-7,
+      ticksPerStep: 60,
+      stepsPerSecond: 1,
+      fieldOfView: 120
+    };
+  }
+
+  render({state, actions}) {
+    return (
+      <settings>
+        <table>
+          <tbody>
+            <tr>
+              <td>Gravity Constant:</td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.gravityConstant}
+                  onChange={({target: {value}}) => this.setState({gravityConstant: parseFloat(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Ticks Per Step:</td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.ticksPerStep}
+                  onChange={({target: {value}}) => this.setState({ticksPerStep: parseInt(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Steps Per Second:</td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.stepsPerSecond}
+                  onChange={({target: {value}}) => this.setState({stepsPerSecond: parseInt(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Field Of View:</td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.fieldOfView}
+                  onChange={({target: {value}}) => this.setState({fieldOfView: parseInt(value, 10)})} /> degrees
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </settings>
+    );
   }
 }
 
@@ -125,12 +185,37 @@ class Controls extends Component {
   }
 }
 
+class Panel extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selected: 0
+    };
+  }
+  render({state, actions, children}) {
+    console.log('children', children);
+    const {selected} = this.state;
+    return (
+      <panel>
+        <header>
+          {children.map(({nodeName: { name }}, i) => <selector className={selected === i ? 'selected' : ''} onClick={() => this.setState({selected: (selected + 1) % children.length})}>{name}</selector>)}
+        </header>
+        {children[selected]}
+      </panel>
+    );
+  }
+}
+
 class UI extends Component {
   render({state, actions}) {
     return (
       <ui>
         <Controls state={state} actions={actions} />
-        <Create state={state} actions={actions} />
+        <Panel>
+          <Create state={state} actions={actions} />
+          <Settings className={state ? 'selected' : ''} state={state} actions={actions} />
+        </Panel>
       </ui>
     );
   }

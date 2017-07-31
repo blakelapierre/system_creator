@@ -1,6 +1,6 @@
 <mathbox tabindex="2">
   <script type="mathbox/jsx">
-    // document.body.addEventListener('touchstart', goFullScreen);
+    document.body.addEventListener('touchstart', goFullScreen);
 
     //bad name
     function goFullScreen() {
@@ -12,312 +12,10 @@
       document.body.removeEventListener('touchstart', goFullScreen);
     }
 
-    let scalar = 0.10;
-    const mathboxEl = document.querySelector('mathbox'),
-          universeEl = document.querySelector('universe');
 
-    mathboxEl.addEventListener('wheel', event => {
-      console.log('wheel', event);
-      // camera.followDistance *= 1 + (event.deltaY > 0 ? scalar : -scalar);
-      // camera.followDistance = Math.max(0, camera.followDistance);
-    });
+    const simState = window.createSim(),
+          {universe, positions, colors, sizes, eevents, uuievents} = simState;
 
-    console.log({mathboxEl});
-
-    // document.body.addEventListener('mousemove', ({clientX, clientY}) => {
-    //   const width = document.body.clientWidth,
-    //         height = document.body.clientHeight,
-    //         x = clientX / width - 0.5,
-    //         y = clientY / height - 0.5;
-
-    //   // set(camera.targetOffset, x, y, 0);
-    //   set(camera.targetLocalRotation, x * 2, y * 2, 1);
-    // });
-
-    function vnew(v) {
-      return copy([0, 0, 0], v);
-    }
-
-    class Mass {
-      constructor(mass, color, position = [0, 0, 0], velocity = [0, 0, 0], acceleration = [0, 0, 0], gravity = [0, 0, 0]) {
-        this._sizeContainer = [];
-        this.mass = mass;
-        this.color = color;
-        this.position = position;
-        this.velocity = velocity;
-        this.acceleration = acceleration;
-        this.gravity = gravity;
-        this.boost = [0, 0, 0];
-        this.emissionCounter = 0;
-        this.collisions = [];
-      }
-
-      set mass(value) { this._mass = value; this._sizeContainer[0] = Math.pow((3 / (4 * Math.PI)) * value, 1 / 3); }
-      // set mass(value) { this._mass = value; this._sizeContainer[0] = 5 * Math.pow(value / Math.PI, 1 / 2); }
-      get mass() { return this._mass; }
-
-      get name() { return 'Mass'; }
-
-      get size() { return this._sizeContainer[0]; }
-      get collisionSize() { return this.size; }
-      // get size() { return this.mass; }
-      // get size() { return 800 * Math.log2(this.mass + 1); }
-
-      positionHalfTick(ticksPerStep) {
-        const {position: p, velocity: v} = this;
-        add(p, p, div(dd, div(dd, v, ticksPerStep), 2));
-      }
-
-      velocityTick(ticksPerStep) {
-        const {
-          velocity: v,
-          acceleration: a,
-          gravity: g
-        } = this;
-
-        add(v, v, div(dd, add(dd, a, g), ticksPerStep));
-      }
-    }
-
-    class Trump extends Mass {
-      constructor (...args) {
-        super(...args);
-        this.color = [2, 2, 0, 0.05];
-      }
-      get name() { return '<trump>TRUMP</trump>'; }
-      get size() { return 0; }
-      get collisionSize() { return super.size; }
-    }
-
-    class Observer extends Mass {
-      get name() { return this._name || 'Observer'; }
-      set name(value) { this._name = value; }
-    }
-
-    class Tweet extends Mass {
-      constructor(...args) {
-        super(...args);
-
-        this.likes = 0;
-        this.retweets = 0;
-        this.followers = 0; // only the oldTweets tweet should use this (new class?)
-      }
-      get name() { return 'Tweet'; }
-    }
-
-    class OldTweets extends Tweet {
-      get name() { return 'Tweet\'s of <trump>TRUMP</trump>\'s Past'; }
-    }
-
-    class TweetSpawn extends Mass { }
-
-    class Like extends TweetSpawn {
-      get name() { return 'Like'; }
-    }
-
-    class ReTweet extends TweetSpawn {
-      get name() { return 'Retweet'; }
-    }
-
-    class Follower extends TweetSpawn {
-      get name() { return 'New Follower'; }
-    }
-
-    class Media extends Mass {
-      constructor(mediaName, ...args) {
-        super(...args);
-        this.mediaName = mediaName;
-      }
-
-      get name() { return this.mediaName; }
-    };
-
-    class Emission extends Mass {
-      get name() { return 'Emission'; }
-    }
-
-    const COLORS = {
-      observer: [0, 0, 2, 1],
-      tweet: [0, 1, 1.2, 2],
-      retweet: [25 / 128, 207 / 128, 134 / 128, 2],
-      like: [190 / 128, 25 / 128, 49 / 128, 2],
-      follower: [0 / 128, 25 / 128, 256 / 128, 2],
-      cnn: [2, 2, 2, 1]
-    };
-
-    const ORBIT_PARAMETERS = {
-      'observer': {
-        p: (tp, tv) => [tp[0], tp[1], tp[2] + 5],
-        v: (tp, tv) => [tv[0] + 1, tv[1], tv[2]]
-      },
-      'oldTweets': {
-        p: (tp, tv) => [tp[0] - 30, tp[1] - 30, tp[2]],
-        v: (tp, tv) => [tv[0] + 1, tv[1], tv[2] + -1]
-      },
-      'tweet': {
-        p: (tp, tv) => [tp[0], tp[1], tp[2] + 450],
-        v: (tp, tv) => [525, 0, 0]
-      },
-      'media': {
-        p: (tp, tv) => [tp[0] + 70, tp[1] + 40, tp[2] + 450],
-        v: (tp, tv) => [525, 0, 0]
-      }
-    };
-
-    const eevents = {
-      // external
-      'newmass': newMass,
-
-      // internal
-      'absorbed': absorbed,
-      'poof': poof
-    };
-
-    const uuievents = {
-      // 'connected': () => noticeEl.classList.add('connected'),
-      // 'tweet': event => trumpTweetEl.classList.remove('show'),
-      // 'absorbed': event => absorbedEl.classList.remove('show'),
-      // 'absorbedBy': event => absorbedByEl.classList.remove('show'),
-      // 'poof': event => poofEl.classList.remove('show'),
-      'newmass': (event, view) => {
-        view.select('#positions').set('width', positions.length);
-        view.select('#colors').set('width', colors.length);
-        view.select('#sizes').set('width', sizes.length);
-      },
-      'log': ([log, ...args]) => console.log('log', ...args)
-    };
-
-    const views = {
-      'overview': [0, 1, 0],
-      'frontview': [0, 0, 1],
-      'sideview': [-1, 0, 0]
-    };
-
-    function createUniverse(existingMasses) {
-      const universe = [...existingMasses],
-            events = [],
-            uievents = [];
-
-      const [
-        positions,
-        velocities,
-        accelerations,
-        gravities,
-        masses,
-        sizes,
-        colors
-      ] = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
-
-      function map(list, properties) {
-        return properties.map(p => list.map(item => item[p]));
-      }
-
-      return {universe, events, uievents, positions, velocities, accelerations, gravities, masses, sizes, colors};
-    }
-
-    const sun = new Mass(1000000, [255, 255, 0, 255]),
-    {
-      universe,
-      events,
-      uievents,
-
-      positions,
-      velocities,
-      accelerations,
-      gravities,
-      masses,
-      sizes,
-      colors
-    } = createUniverse([sun]);
-
-    const state = {
-        universe,
-        eventLog: [],
-        uieventLog: []
-    };
-
-
-    const tweets = [],
-          tweetMap = {},
-          tweetSpawn = [],
-          spawningTweets = new Set(),
-          media = [],
-          observers = [],
-          emissions = [],
-          boostings = [];
-
-    let oldTweets;
-
-    let pendingTweetSpawn = 0;
-
-    const MAX_TWEET_SPAWN = 75,
-          MAX_OBSERVERS = 51,
-          MAX_TWEET_SPAWN_AGE = 60 * 5,
-          MAX_EMISSION_AGE = 60 * 5;
-
-    const EMISSION_RATE = 10,
-          EMISSION_SCALE_FACTOR = 5;
-
-    const vBoost = 10;
-
-
-    function addMass(newMass) {
-      const {position, velocity, acceleration, gravity, mass, size, color} = newMass;
-
-      newMass.created = currentTick;
-
-      universe.push(newMass);
-      positions.push(position);
-      velocities.push(velocity);
-      accelerations.push(acceleration);
-      gravities.push(gravity);
-      masses.push(mass);
-      sizes.push(size);
-      colors.push(color);
-
-      uievents.push(['newmass']);
-
-      console.log(sizes);
-
-      return newMass;
-    }
-
-    function newMass([_, {position: p, velocity: v, mass, color}]) {
-      console.log('newmass', p, v, mass, color);
-      const {position: tp, velocity: tv} = sun;
-      const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]));
-
-      setStat('masses', universe.length);
-    }
-
-
-    function absorbed(event) {
-      uievents.push(event);
-    }
-
-    function poof([_, mass]) {
-      if (mass instanceof TweetSpawn) {
-        tweetSpawn.splice(tweetSpawn.indexOf(mass), 1);
-      }
-      else if (mass instanceof Tweet) {
-        tweets.splice(tweets.indexOf(mass), 1);
-        delete tweetMap[mass.tweetID];
-      }
-      else if (mass instanceof Observer) {
-        observers.splice(observers.indexOf(mass), 1);
-      }
-
-      const index = universe.indexOf(mass); // annoying lookup
-      console.log('poof removing', index);
-      universe.splice(index, 1);
-      positions.splice(index, 1);
-      velocities.splice(index, 1);
-      accelerations.splice(index, 1);
-      gravities.splice(index, 1);
-      masses.splice(index, 1);
-      sizes.splice(index, 1);
-      colors.splice(index, 1);
-    }
 
     <root>
       <camera proxy={true}
@@ -344,199 +42,7 @@
       </cartesian>
     </root>
 
-    const speedlimit = 300000;
-    const pv1 = [0, 0, 0],
-          pv2 = [0, 0, 0],
-          oldp1 = [0, 0, 0],
-          oldp2 = [0, 0, 0],
-          dd = [0, 0, 0];
-
-
-    const collisionList = []; // where should this go?
-    let collisionIIndex = 0;
-
-    let /*ticksPerSecond = 60,*/
-        ticksPerStep = 60,
-        stepsPerSecond = 1;
-
-
-    let currentTick = 0;
-    function tick() {
-      currentTick++;
-
-      positionHalfTick();
-      updateGravities();
-      updateVelocities();
-      resolveCollisions();
-
-      function positionHalfTick() {
-        for (let i = 0; i < universe.length; i++) {
-          const mass = universe[i];
-
-          mass.positionHalfTick(ticksPerStep);
-          set(mass.gravity, 0, 0, 0);
-        }
-      }
-
-      // can be optimized quite a bit? ?
-      function updateGravities() {
-        for (let i = 0; i < universe.length; i++) updatePairs(i);
-      }
-
-      function updatePairs(i) {
-        const {
-          position: p1,
-          velocity: v1,
-          acceleration: a1,
-          gravity: g1,
-          mass: m1,
-          collisionSize: s1,
-          collisions
-        } = universe[i];
-
-        for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions); //
-
-        if (collisions.length > 0) {
-          collisionList.push(collisions[0]);
-          if (collisions.length > 1) console.log('+1', collisions);
-          collisions.splice(0);
-        }
-
-        // F = ma ... a = F/m
-        div(g1, g1, m1);
-      }
-
-      function updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions) {
-        const {
-          position: p2,
-          velocity: v2,
-          acceleration: a2,
-          mass: m2,
-          collisionSize: s2,
-          gravity: g2
-        } = universe[j];
-
-        sub(dd, p1, p2);
-
-        const distance = magnitude(dd),
-              t = -distance / (speedlimit * speedlimit),
-              o = t / ticksPerStep;
-
-        updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m1 * m2);
-
-        handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions);
-      }
-
-      function updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m) {
-        updatePosition(oldp1, o, a1, v1, p1);
-        updatePosition(oldp2, o, a2, v2, p2);
-
-        sub(pv1, oldp1, p2);
-        sub(pv2, oldp2, p1);
-
-        const d1 = dot(pv1, pv1),
-              d2 = dot(pv2, pv2);
-
-        updateGravity(d1, pv1, g2, m);
-        updateGravity(d2, pv2, g1, m);
-      }
-
-      function updatePosition(oldp, o, a, v, p) {
-        return add(oldp, p, scale(dd, add(dd, v, scale(dd, add(dd, v, scale(dd, a, o)), 0.5)), o));
-      }
-
-      function updateGravity(d, pv, g, m) {
-        if (d > 0) add(g, g, scale(dd, pv, 6.67408e-7 * m / d));
-      }
-
-      function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions) {
-        if (collisions.length === 0) {
-          const threshold = (s1 + s2) / 150;
-          if (distance < threshold) { // better ordering of checks?
-            console.log(distance, threshold, s1, s2);
-            if (m1 <= m2) {
-              //wtf is this
-              collisions.push([universe[i], universe[j], i, j]);
-            }
-            else {
-              universe[j].collisions.push([universe[j], universe[i], j, i]);
-            }
-          }
-        }
-      }
-
-      function updateVelocities() {
-        universe.forEach(updateMassVelocityAndPartialPosition);
-      }
-
-      function updateMassVelocityAndPartialPosition(mass) {
-        mass.velocityTick(ticksPerStep);
-        mass.positionHalfTick(ticksPerStep);
-      }
-
-      function resolveCollisions() {
-        for (let i = collisionList.length - 1; i >= 0; i--) {
-          const [smallerMass, greaterMass] = collisionList[i];
-
-          greaterMass.mass += smallerMass.mass;
-
-          const ratio = smallerMass.mass / greaterMass.mass; // 0?
-
-          greaterMass.color[0] = (1 - ratio) * greaterMass.color[0] + ratio * smallerMass.color[0];
-          greaterMass.color[1] = (1 - ratio) * greaterMass.color[1] + ratio * smallerMass.color[1];
-          greaterMass.color[2] = (1 - ratio) * greaterMass.color[2] + ratio * smallerMass.color[2];
-
-          div(greaterMass.velocity,
-            add(greaterMass.velocity,
-              scale(greaterMass.velocity,
-                greaterMass.velocity,
-                greaterMass.mass),
-              scale(dd, smallerMass.velocity, smallerMass.mass)),
-            greaterMass.mass + smallerMass.mass);
-        }
-
-        for (let i = collisionList.length - 1; i >= 0; i--) {
-          const [smallerMass, greaterMass, smallerIndex, greaterIndex] = collisionList[i];
-
-          incrementStat(smallerMass.constructor.name, 'absorbedBy', greaterMass.constructor.name);
-
-          events.push(['absorbed', smallerMass.name, greaterMass.name]);
-
-          sizes[greaterIndex] = greaterMass.size;
-
-          universe.splice(smallerIndex, 1);
-          positions.splice(smallerIndex, 1);
-          velocities.splice(smallerIndex, 1);
-          accelerations.splice(smallerIndex, 1);
-          gravities.splice(smallerIndex, 1);
-          masses.splice(smallerIndex, 1);
-          sizes.splice(smallerIndex, 1);
-          colors.splice(smallerIndex, 1);
-        }
-
-        collisionList.splice(0);
-        collisionIIndex = 0;
-      }
-    }
-
-
-    const stats = {totalSouls: 0};
-    function incrementStat(target, relation, object) {
-      stats[target] = stats[target] || {};
-      stats[target][relation] = stats[target][relation] || {};
-      return (stats[target][relation][object] = (stats[target][relation][object] || 0) + 1);
-    }
-
-    function setStat(target, value) {
-      stats[target] = value;
-    }
-
-    let selectedMassIndex = 0, savedColor = [0, 0, 0];
-    selectMass(selectedMassIndex);
-
     if (window.location.search === '?nointro') document.querySelector('notice').classList.add('no-intro');
-
-    const guiUpdates = [];
 
     let given, needsStart;
 
@@ -551,6 +57,10 @@
       // noticeEl.classList.add('given');
       if (needsStart) needsStart();
     }
+
+    const updateWidth = {
+      'width'() { return universe.length; }
+    };
 
     module.exports = {
       editorPanel: false,
@@ -617,244 +127,37 @@
             }
           }
         },
-        'fakeTweet': {
-          '#positions': {
-            'width'() {
-              events.push(['tweet']);
-              return universe.length;
-            }
-          },
-          '#colors': {
-            'width'() { return universe.length; }
-          },
-          '#velocities': {
-            'width'() { return universe.length; }
-          },
-          '#sizes': {
-            'width'() { return universe.length; }
-          }
-        },
-        'fakeRetweet': {
-          '#positions': {
-            'width'() {
-              events.push(['retweet', 'fake']);
-              return universe.length;
-            }
-          },
-          '#colors': {
-            'width'() { return universe.length; }
-          },
-          '#velocities': {
-            'width'() { return universe.length; }
-          },
-          '#sizes': {
-            'width'() { return universe.length; }
-          }
-        },
-        'fakeLike': {
-          '#positions': {
-            'width'() {
-              events.push(['like', 'fake']);
-              return universe.length;
-            }
-          },
-          '#colors': {
-            'width'() { return universe.length; }
-          },
-          '#velocities': {
-            'width'() { return universe.length; }
-          },
-          '#sizes': {
-            'width'() { return universe.length; }
-          }
-        },
         'newMass': {
-          '#positions': {
-            'width'() {
-              events.push(['observer+']);
-              return universe.length;
-            }
-          },
-          '#colors': {
-            'width'() { return universe.length; }
-          },
-          '#velocities': {
-            'width'() { return universe.length; }
-          },
-          '#sizes': {
-            'width'() { return universe.length; }
-          }
-        },
-        'prevMass': () => {
-          centeredMassIndex = (centeredMassIndex === 0 ? universe.length : centeredMassIndex) - 1
-          // nextFollow();
-          // const index = universe.indexOf(camera.follow);
-
-          // camera.follow =
-
-          // return camera.positionIndex === 0 ? camera.positionIndex = universe.length - 1 : camera.positionIndex--;
-        },
-        'nextMass': () => {
-          centeredMassIndex = (centeredMassIndex + 1) % universe.length;
-          // previousFollow();
-          // return camera.positionIndex = (camera.positionIndex + 1) % universe.length;
+          '#positions': updateWidth,
+          '#colors': updateWidth,
+          '#velocities': updateWidth,
+          '#sizes': updateWidth
         }
       }
     };
 
-    function getLargestMass() {
-      let largest = universe[0];
-      for (let i = 1; i < universe.length; i++) {
-        const mass = universe[i];
-        if (mass.mass > largest.mass) largest = mass;
-      }
-      return largest;
-    }
-
-    function centerOnSun() {
-      const {position: tp} = sun;
-      for (let i = universe.length - 1; i >= 0; i--) {
-        const {position: p} = universe[i];
-        sub(p, p, tp);
-      }
-    }
-
-    function centerOn(msss) {
-      const {position: tp} = msss;
-      for (let i = universe.length - 1; i >= 0; i--) {
-        const {position: p} = universe[i];
-        sub(p, p, tp);
-      }
-    }
-
-    class Clock {
-      constructor(ticksPerStep) {
-        this.ticksPerStep = ticksPerStep;
-        this.startTime = this.currentTime;
-      }
-
-      get currentTime() { return new Date().getTime(); }
-
-      ticksTo(time) {
-        const dt = time - this.startTime;
-        return Math.floor((dt / 1000) * ticksPerStep);
-      }
-    }
-
     function jsxboxCallback(view) {
-      if (given) start(view, state); // global!!
-      else needsStart = () => start(view, state);
+      if (given) start(view, simState); // global!!
+      else needsStart = () => start(view, simState);
     }
 
     function start(view, state) {
       needsStart = undefined; // global!!
 
-      const run = runner(state, new Clock());
+      const {tick, universe, uievents} = state;
 
-      window.requestAnimationFrame(animate);
+      const run = createRunner(state);
 
       setupUI(
         document.getElementsByTagName('ui')[0],
         state,
         {
-          create: ({position, velocity, mass, color}) => events.push(['newmass', {position, velocity, mass, color}]),
+          create: ({position, velocity, mass, color}) => state.events.push(['newmass', {position, velocity, mass, color}]),
           restart: () => console.log('should restart')
         }
       );
 
-      function runner(state, clock, maxRunTime = 1000 / 30, GUIUpdateRate = 100) {
-        const {startTime} = clock;
-
-        let currentTick = 0,
-            lastGUIUpdate = 0,
-            currentTime;
-
-        return (runTime = clock.currentTime) => {
-          const t = clock.ticksTo(runTime);
-
-          while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
-            handleEvents(state.eventLog);
-            tick();
-            currentTick++;
-          }
-
-          centerOn(universe[0]);
-          // centerOn(getLargestMass());
-
-          // universeEl.innerText = JSON.stringify(universe, (key, value) => Array.isArray(value) ? `[${value.join(', ')}]` : value, 2);
-          // universeEl.innerText = JSON.stringify(universe);
-        };
-
-        function handleEvents(eventLog) {
-          if (events.length === 0) return;
-
-          eventLog.push([currentTick, events.slice()]);
-
-          for (let i = 0; i < events.length; i++) {
-            const event = events[i];
-
-            (eevents[event[0]] || defaultHandler(event))(event, view);
-          }
-
-          events.splice(0);
-        }
-
-        function defaultHandler(event) {
-          console.log(`No eevents ${event[0]}!`)
-          return emptyFn;
-        }
-
-        function emptyFn() {}
-      }
-
-
-      // function runner(universe, startTime = new Date().getTime(), maxRunTime = 1000 / 10, GUIUpdateRate = 100) {
-      //   let currentTick = 0,
-      //       lastGUIUpdate = 0;
-
-      //   return (runTime = new Date().getTime()) => {
-      //     const dt = runTime - startTime,
-      //           t = Math.floor((dt / 1000) * ticksPerStep);
-
-      //     centerOnSun();
-      //     let currentTime;
-      //     while (currentTick < t && ((currentTime = new Date().getTime()) - runTime) < maxRunTime) {
-      //       handleEvents();
-      //       tick();
-      //       currentTick++;
-      //     }
-
-      //     if ((currentTime - lastGUIUpdate) > 100) {
-      //       updateMassesGUI();
-      //       lastGUIUpdate = currentTime;
-      //     }
-
-      //     if (t - currentTick > 10) {
-      //       catchUpQuantityEl.parentElement.style.display = 'block';
-      //       catchUpQuantityEl.innerHTML = currentTick - t;
-      //     }
-      //     else {
-      //       catchUpQuantityEl.parentElement.style.display = 'none';
-      //     }
-      //   };
-
-      //   function handleEvents() {
-      //     for (let i = 0; i < events.length; i++) {
-      //       const event = events[i];
-
-      //       (eevents[event[0]] || defaultHandler(event))(event, view);
-      //     }
-
-      //     events.splice(0);
-      //   }
-
-      //   function defaultHandler(event) {
-      //     console.log(`No eevents ${event[0]}!`)
-      //     return emptyFn;
-      //   }
-
-      //   function emptyFn() {}
-      // }
+      window.requestAnimationFrame(animate);
 
       function animate() {
         run();
@@ -862,32 +165,8 @@
         for (let i = 0; i < uievents.length; i++) {
           const event = uievents[i];
 
-          (uuievents[event[0]] || (() => {}))(event, view);
+          (uuievents[event[0]] || (() => {}))(event, view, state);
         }
-
-        // for (let i = 0; i < uievents.length; i++) {
-        //   const [name, ...args] = uievents[i];
-
-        //   if (name === 'tweet') trumpTweetEl.classList.add('show');
-        //   else if (name === 'absorbed') {
-        //     const [absorbed, by] = args;
-
-        //     absorbedEl.classList.add('show');
-        //     absorbedNameEl.innerHTML = absorbed;
-        //     absorbedByNameEl.innerHTML = by;
-        //   }
-        //   else if (name === 'absorbedBy') {
-        //     const [by] = args;
-
-        //     absorbedByEl.classList.add('show');
-        //     absorbedByByNameEl.innerHTML = by;
-        //   }
-        //   else if (name === 'poof') {
-        //     const [poof, mass] = args;
-
-        //     poofEl.classList.add('show');
-        //   }
-        // }
 
         uievents.splice(0);
 
