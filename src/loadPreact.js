@@ -118,11 +118,13 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
+    const {gravityConstant, ticksPerStep, stepsPerSecond, fieldOfView} = props.state;
+
     this.state = {
-      gravityConstant: 6.67408e-7,
-      ticksPerStep: 60,
-      stepsPerSecond: 1,
-      fieldOfView: 120
+      gravityConstant,
+      ticksPerStep,
+      stepsPerSecond,
+      fieldOfView
     };
   }
 
@@ -137,7 +139,8 @@ class Settings extends Component {
                 <input
                   type="number"
                   value={this.state.gravityConstant}
-                  onChange={({target: {value}}) => this.setState({gravityConstant: parseFloat(value, 10)})} />
+                  step="0.00000001"
+                  onInput={({target: {value}}) => this.setState({gravityConstant: parseFloat(value, 10)}) & actions['setGravityConstant'](parseFloat(value, 10))} />
               </td>
             </tr>
             <tr>
@@ -146,7 +149,7 @@ class Settings extends Component {
                 <input
                   type="number"
                   value={this.state.ticksPerStep}
-                  onChange={({target: {value}}) => this.setState({ticksPerStep: parseInt(value, 10)})} />
+                  onInput={({target: {value}}) => this.setState({ticksPerStep: parseInt(value, 10) & actions['setTicksPerStep'](parseInt(value, 10))})} />
               </td>
             </tr>
             <tr>
@@ -155,7 +158,7 @@ class Settings extends Component {
                 <input
                   type="number"
                   value={this.state.stepsPerSecond}
-                  onChange={({target: {value}}) => this.setState({stepsPerSecond: parseInt(value, 10)}) & actions['setStepsPerSecond'](parseInt(value, 10))} />
+                  onInput={({target: {value}}) => this.setState({stepsPerSecond: parseInt(value, 10)}) & actions['setStepsPerSecond'](parseInt(value, 10))} />
               </td>
             </tr>
             <tr>
@@ -166,7 +169,7 @@ class Settings extends Component {
                   min="1"
                   max="179"
                   value={this.state.fieldOfView}
-                  onChange={({target: {value}}) => this.setState({fieldOfView: parseInt(value, 10)}) & actions['setFieldOfView'](parseInt(value, 10))} /> degrees
+                  onInput={({target: {value}}) => this.setState({fieldOfView: parseInt(value, 10)}) & actions['setFieldOfView'](parseInt(value, 10))} /> {this.state.fieldOfView} degrees
               </td>
             </tr>
           </tbody>
@@ -181,8 +184,19 @@ class Controls extends Component {
     return (
       <save>
         <button onClick={actions['restart']}>Restart</button>
-        <button onClick={() => console.log(state.eventLog)}>Save System</button>
+        <button onClick={actions['save']}>Save System</button>
+        <button onClick={actions['load']}>Load System</button>
       </save>
+    );
+  }
+}
+
+class LoadControl extends Component {
+  render({state, actions}) {
+    return (
+      <load>
+
+      </load>
     );
   }
 }

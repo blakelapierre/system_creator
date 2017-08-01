@@ -12,35 +12,48 @@
       document.body.removeEventListener('touchstart', goFullScreen);
     }
 
+    window.addEventListener('beforeunload', event => {
+      if (!localStorage) return console.log('No localStorage. Unable to save system!');
+
+      const storage = JSON.parse(localStorage['systems'] || '[]');
+      storage.push(simState.eventLog);
+      localStorage.setItem('systems', JSON.stringify(storage));
+    });
+
 
     let simState = window.createSim(),
         {universe, positions, colors, sizes, eevents, uuievents, fieldOfView} = simState;
 
+    // renderUniverse(simState);
 
-    <root>
-      <camera proxy={true}
-              position={[0, 5, 0]}
-              lookAt={[0, 0, 0]}
-              fov={fieldOfView}
-              up={[0, 1, 0]} />
-      <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
-                 scale={[1, 1, 1]}>
-        <array id="positions"
-               width={universe.length}
-               channels={3}
-               history={1}
-               data={positions} />
-        <array id="colors"
-               width={universe.length}
-               channels={4}
-               data={colors} />
-        <array id="sizes"
-               width={universe.length}
-               channels={1}
-               data={sizes} />
-        <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9}/>
-      </cartesian>
-    </root>
+    function renderUniverse({universe, positions, colors, sizes, fieldOfView}) {
+      return render(
+        <root>
+          <camera proxy={true}
+                  position={[0, 5, 0]}
+                  lookAt={[0, 0, 0]}
+                  fov={fieldOfView}
+                  up={[0, 1, 0]} />
+          <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
+                     scale={[1, 1, 1]}>
+            <array id="positions"
+                   width={universe.length}
+                   channels={3}
+                   history={1}
+                   data={positions} />
+            <array id="colors"
+                   width={universe.length}
+                   channels={4}
+                   data={colors} />
+            <array id="sizes"
+                   width={universe.length}
+                   channels={1}
+                   data={sizes} />
+            <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9}/>
+          </cartesian>
+        </root>
+      );
+    }
 
     if (window.location.search === '?nointro') document.querySelector('notice').classList.add('no-intro');
 
@@ -137,21 +150,22 @@
     };
 
     function jsxboxCallback(view) {
-      if (given) start(view, simState); // global!!
-      else needsStart = () => start(view, simState);
+      if (given) start(simState); // global!!
+      else needsStart = () => start(simState);
     }
 
-    function start(view, state) {
+    function start(state) {
       needsStart = undefined; // global!!
 
-      const {tick, universe, uievents} = state;
+      const {tick, universe, uievents} = state,
+            view = renderUniverse(state);
 
       const run = createRunner(state);
 
       let stop = false;
 
       setupUI(
-        document.getElementsByTagName('ui')[0],
+        document.getElementsByTagName('interface')[0],
         state,
         {
           create: ({position, velocity, mass, color}) => state.events.push(['newmass', {position, velocity, mass, color}]),
@@ -173,13 +187,25 @@
 
             view.select('camera').set('fov', fieldOfView);
 
-            start(view, simState);
+            start(simState);
 
             stop = true;
           },
+          save: () => {
+            if (!localStorage) return alert('No localStorage!');
+
+            const saved = JSON.parse(localStorage['saved'] || '[]');
+            saved.push([new Date().getTime(), state.eventLog]);
+            localStorage['saved'] = JSON.stringify(saved);
+          },
+          load: () => {
+
+          },
+          setGravityConstant: gravityConstant => state.gravityConstant = gravityConstant,
+          setTicksPerStep: ticksPerStep => state.ticksPerStep = ticksPerStep,
           setStepsPerSecond: stepsPerSecond => state.stepsPerSecond = stepsPerSecond,
           setFieldOfView: fov => {
-            console.log(fov, view.select('camera'));
+            state.fov = fov;
             view.select('camera').set('fov', fov)
           }
         }
@@ -395,7 +421,7 @@
 
 <universe></universe>
 
-<ui></ui>
+<interface></interface>
 
 <made-with>
     <span>Made With</span>
