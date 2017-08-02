@@ -1120,37 +1120,84 @@ universe {
   overflow-x: auto;
 }
 
-controls {
+save {
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  load {
+    display: block;
+
+    color: #fff;
+
+    system {
+      display: block;
+
+      cursor: pointer;
+    }
+  }
+}
+
+panel {
   position: fixed;
 
   bottom: 0;
   right: 0;
 
-  padding: 0.5em;
-
-  display: flex;
-  flex-direction: column;
-
   color: #fff;
-  border-left: solid 1px #48c;
-  border-top: solid 1px #48c;
 
-  table {
-    flex: 1 1 auto;
-  }
+  header {
+    display: flex;
 
-  button {
-    flex: 1 1 auto;
-  }
+    justify-content: space-around;
 
-  input {
-    width: 3em;
+    selector {
+      cursor: pointer;
 
-    text-align: right;
-
-    &.mass {
-      width: 9em;
+      &.selected {
+        font-size: 1.5em;
+        line-height: 1em;
+      }
     }
+  }
+
+  create {
+    padding: 0.5em;
+
+    display: flex;
+    flex-direction: column;
+
+    border-left: solid 1px #48c;
+    border-top: solid 1px #48c;
+
+    table {
+      flex: 1 1 auto;
+    }
+
+    button {
+      flex: 1 1 auto;
+    }
+
+    input {
+      width: 3em;
+
+      text-align: right;
+
+      &.mass {
+        width: 9em;
+      }
+    }
+  }
+
+  settings {
+    padding: 0.5em;
+
+    display: flex;
+    flex-direction: column;
+
+    border-left: solid 1px #48c;
+    border-top: solid 1px #48c;
   }
 }
 

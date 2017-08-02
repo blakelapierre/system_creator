@@ -14,5 +14,6 @@ babel --presets es2015 --source-type 'module' --out-dir '.transpiled' src && \
 echo "Browserifying..." && \
 browserify .transpiled/handlers/custom/index.js > dist/handler.min.js && \
 browserify .transpiled/loadPreact.js > dist/loadPreact.js && \
+browserify .transpiled/systemSim.js > dist/systemSim.js && \
 
 echo "Built handler.js"

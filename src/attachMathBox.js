@@ -74,7 +74,6 @@ class Scene {
 }
 
 export default function attachMathBox(code, parentNode) {
-  // this needs to be pushed somewhere else (whatever calls attach?)
   // const compressedCode = window.location.search || window.location.hash;
   // if (compressedCode) {
   //   code = decompressFromEncodedURIComponent(compressedCode.substr(1));
@@ -87,46 +86,46 @@ export default function attachMathBox(code, parentNode) {
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
         {callback, commands, controls, onMathBoxViewBuilt} = result;
 
-  build(view, root);
+  // build(view, root);
 
-  if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
-  if (controls) attachControls(view, controls, commands);
+  // if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
+  // if (controls) attachControls(view, controls, commands);
 
-  newScene.update(parentNode, commands, controls, result, view);
+  // newScene.update(parentNode, commands, controls, result, view);
 
   if (callback) callback(view);
 }
 
 function handleMathBoxJsx(code) {
-  const {result, root, cancel} = runMathBoxJsx(compile(code).code),
-        {attachTo, cameraControls, editorPanel, plugins, camera} = result;
-
   return parentNode => {
+    const {result, root, cancel} = runMathBoxJsx(compile(code).code, parentNode),
+          {attachTo, cameraControls, editorPanel, plugins, camera} = result;
+
     const element = attachTo || parentNode; // kind of strange. oh well
 
-    const container = document.createElement('mathbox-container');
-    element.appendChild(container);
+    // const container = document.createElement('mathbox-container');
+    // element.appendChild(container);
 
-    if (editorPanel) attachPanel(element, root);
+    // if (editorPanel) attachPanel(element, root);
 
-    const view = mathBox({
-      // element,
-      element: container,
-      plugins: plugins || ['core', 'cursor'],
-      controls: {
-        // klass: cameraControls || THREE.OrbitControls
-        klass: THREE.OrbitControls
-      },
-      camera: camera
-    }), thumbnailCanvas = document.createElement('canvas')
-      , thumbnailContext = thumbnailCanvas.getContext('2d');
+    // const view = mathBox({
+    //   // element,
+    //   element: container,
+    //   plugins: plugins || ['core', 'cursor'],
+    //   controls: {
+    //     // klass: cameraControls || THREE.OrbitControls
+    //     klass: THREE.OrbitControls
+    //   },
+    //   camera: camera
+    // }), thumbnailCanvas = document.createElement('canvas')
+    //   , thumbnailContext = thumbnailCanvas.getContext('2d');
 
-    thumbnailCanvas.width = view._context.canvas.width / 5;
-    thumbnailCanvas.height = view._context.canvas.height / 5;
+    // thumbnailCanvas.width = view._context.canvas.width / 5;
+    // thumbnailCanvas.height = view._context.canvas.height / 5;
 
-    element.addEventListener('resize', event => console.log('resize', event));
+    // element.addEventListener('resize', event => console.log('resize', event));
 
-    return {view, result, root};
+    return {result, root};
 
     function attachPanel(element, currentRoot) {
       const updateStrategies = {
@@ -329,7 +328,7 @@ function handleMathBoxJsx(code) {
 
       function replaceStrategy(view, root, newCode, {controls, commands}) {
         view.remove('*');
-        build(view, root);
+        build(wwe, root);
 
         if (attachControls) attachControls(view, controls, commands);
       }
@@ -342,23 +341,63 @@ function handleMathBoxJsx(code) {
     }
   };
 
-  function runMathBoxJsx(code) {
-    let root;
+  function runMathBoxJsx(code, parentNode) {
+    let root, realRoot;
+
     const JMB = {
       // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
+      createElement: (name, props, ...children) => (root = ({name, props, children}))
     };
 
-    const setInterval = fakeSetInterval;
+    // const setInterval = fakeSetInterval,;
 
-    const intervals = [];
+    const views = {};
+    function render(root, el = parentNode) {
+      let view = views[el];
 
-    const result = eval(code) || {};
+      if (!view) view = views[el] = createView(el);
+      else view.remove('*');
 
-    return {result, root, cancel: () => intervals.forEach(clearInterval)};
+      build(view, root);
 
-    function fakeSetInterval(...args) {
+      return view;
+
+      function createView(element, plugins, camera) {
+        const view = mathBox({
+          element,
+          plugins: plugins || ['core', 'cursor', 'controls'],
+          controls: {
+            // klass: cameraControls || THREE.OrbitControls
+            klass: THREE.OrbitControls
+          },
+          camera
+        });
+
+        return view;
+      }
+    }
+
+    // function render(something) {
+    //   realRoot = something;
+    // }
+
+    // function rerender(something) {
+    //   view.
+    // }
+
+    const intervals = [],
+          result = eval(code) || {};
+
+    return {result, root: realRoot || root, cancel};
+
+    // function fakeSetInterval(...args) {
+    function setInterval(...args) {
       intervals.push(window.setInterval.apply(window, args));
+    }
+
+    function cancel() {
+      intervals.forEach(clearInterval);
+      intervals.splice(0);
     }
   }
 }
