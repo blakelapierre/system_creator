@@ -202,7 +202,7 @@ class Controls extends Component {
 
 class LoadControl extends Component {
   render({state, actions}) {
-    const systems = (JSON.parse(localStorage['systems']) || []).map(([time, system]) => <system onClick={() => actions['load'](system)}>{new Date(time).toString()}</system>);
+    const systems = (JSON.parse(localStorage['systems'] || '[]')).map(([time, system]) => <system onClick={() => actions['load'](system)}>{new Date(time).toString()}</system>);
     return (
       <load>
         <span>Prior Systems</span>
@@ -227,7 +227,11 @@ class Panel extends Component {
     return (
       <panel>
         <header>
-          {children.map(({nodeName: { name }}, i) => <selector className={selected === i ? 'selected' : ''} onClick={() => this.setState({selected: (selected + 1) % children.length})}>{name}</selector>)}
+          {children.map(({attributes: { header }}, i) =>
+            <selector
+              className={selected === i ? 'selected' : ''}
+              onClick={() => this.setState({selected: (selected + 1) % children.length})}
+              >{header}</selector>)}
         </header>
         {children[selected]}
       </panel>
@@ -241,8 +245,15 @@ class UI extends Component {
       <ui>
         <Controls state={state} actions={actions} />
         <Panel>
-          <Create state={state} actions={actions} />
-          <Settings className={state ? 'selected' : ''} state={state} actions={actions} />
+          <Create
+            state={state}
+            actions={actions}
+            header="Create" />
+          <Settings
+            className={state ? 'selected' : ''}
+            state={state}
+            actions={actions}
+            header="Settings" />
         </Panel>
       </ui>
     );
