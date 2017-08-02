@@ -180,12 +180,21 @@ class Settings extends Component {
 }
 
 class Controls extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showLoad: false
+    };
+  }
+
   render({state, actions}) {
     return (
       <save>
         <button onClick={actions['restart']}>Restart</button>
         <button onClick={actions['save']}>Save System</button>
-        <button onClick={actions['load']}>Load System</button>
+        <button onClick={() => this.setState({showLoad: !this.state.showLoad}) & actions['load']}>Load System</button>
+        {this.state.showLoad ? <LoadControl state={state} actions={actions} /> : undefined}
       </save>
     );
   }
@@ -193,9 +202,11 @@ class Controls extends Component {
 
 class LoadControl extends Component {
   render({state, actions}) {
+    const systems = (JSON.parse(localStorage['systems']) || []).map(([time, system]) => <system onClick={() => actions['load'](system)}>{new Date(time).toString()}</system>);
     return (
       <load>
-
+        <span>Prior Systems</span>
+        {systems}
       </load>
     );
   }
@@ -209,6 +220,7 @@ class Panel extends Component {
       selected: 0
     };
   }
+
   render({state, actions, children}) {
     console.log('children', children);
     const {selected} = this.state;
@@ -237,27 +249,4 @@ class UI extends Component {
   }
 }
 
-window.setupUI = (el, state, actions) => render(<UI state={state} actions={actions} />, el);
-
-        // <!-- <position>
-        //   <label>Position: </label>
-        //   <input type="number" value="0" />
-        //   <input type="number" value="20" />
-        //   <input type="number" value="0" />
-        // </position>
-        // <velocity>
-        //   <label>Velocity: </label>
-        //   <input type="number" value="-20" />
-        //   <input type="number" value="0" />
-        //   <input type="number" value="0" />
-        // </velocity>
-        // <mass>
-        //   <label>Mass: </label>
-        //   <input type="number" min="0" value="1" />
-        // </mass>
-        // <color>
-        //   <label>Color: </label>
-        //   <input type="color" />
-        // </color> -->
-
-// render(<Controls />, document.getElementsByTagName('ui')[0]);
+window.setupUI = (el, state, actions) => render(<UI state={state} actions={actions} />, el, el.querySelector('ui'));

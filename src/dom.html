@@ -16,7 +16,7 @@
       if (!localStorage) return console.log('No localStorage. Unable to save system!');
 
       const storage = JSON.parse(localStorage['systems'] || '[]');
-      storage.push(simState.eventLog);
+      storage.push([new Date().getTime(), simState.eventLog]);
       localStorage.setItem('systems', JSON.stringify(storage));
     });
 
@@ -194,12 +194,33 @@
           save: () => {
             if (!localStorage) return alert('No localStorage!');
 
-            const saved = JSON.parse(localStorage['saved'] || '[]');
-            saved.push([new Date().getTime(), state.eventLog]);
-            localStorage['saved'] = JSON.stringify(saved);
+            const systems = JSON.parse(localStorage['systems'] || '[]');
+            systems.push([new Date().getTime(), state.eventLog]);
+            localStorage['systems'] = JSON.stringify(systems);
           },
-          load: () => {
+          load: (system) => {
+            simState = window.createSim();
 
+            window.universe = simState.universe;
+            window.positions = simState.positions;
+            window.colors = simState.colors;
+            window.sizes = simState.sizes;
+            window.eevents = simState.eevents;
+            window.uuievents = simState.uuievents;
+            window.fieldOfView = simState.fieldOfView;
+
+            view.select('#positions').set('data', positions).set('width', positions.length);
+            view.select('#colors').set('data', colors).set('width', colors.length);
+            // view.select('#velocities').set('data', velocities).set('width', velocities.length);
+            view.select('#sizes').set('data', sizes).set('width', sizes.length);
+
+            view.select('camera').set('fov', fieldOfView);
+
+            simState.playback = system;
+
+            start(simState);
+
+            stop = true;
           },
           setGravityConstant: gravityConstant => state.gravityConstant = gravityConstant,
           setTicksPerStep: ticksPerStep => state.ticksPerStep = ticksPerStep,
@@ -226,195 +247,6 @@
 
         if (!stop) window.requestAnimationFrame(animate);
       }
-    }
-
-    function newv (s) {
-      return copy([0, 0, 0], s);
-    }
-
-    function set (r, x, y, z) {
-      r[0] = x;
-      r[1] = y;
-      r[2] = z;
-      return r;
-    }
-
-    function copy (r, s) {
-      r[0] = s[0];
-      r[1] = s[1];
-      r[2] = s[2];
-      return r;
-    }
-
-    function add (r, u, v) {
-      r[0] = u[0] + v[0];
-      r[1] = u[1] + v[1];
-      r[2] = u[2] + v[2];
-      return r;
-    }
-
-    function sub (r, u, v) {
-      r[0] = u[0] - v[0];
-      r[1] = u[1] - v[1];
-      r[2] = u[2] - v[2];
-      return r;
-    }
-
-    function scale (r, v, s) {
-      r[0] = v[0] * s;
-      r[1] = v[1] * s;
-      r[2] = v[2] * s;
-      return r;
-    }
-
-    function div (r, v, d) {
-      if (d === 0) return copy(r, v);
-      r[0] = v[0] / d;
-      r[1] = v[1] / d;
-      r[2] = v[2] / d;
-      return r;
-    }
-
-    function cross (r, u, v) {
-      r[0] = u[1] * v[2] - u[2] * v[1];
-      r[1] = u[2] * v[0] - u[0] * v[2];
-      r[2] = u[0] * v[1] - u[1] * v[0];
-      return r;
-    }
-
-    function dot (u, v) {
-      return u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
-    }
-
-    function magnitude(v) {
-      return Math.sqrt(v[0] * v[0] +
-                       v[1] * v[1] +
-                       v[2] * v[2]);
-    }
-
-    function normalize(r, v) {
-      return div(r, v, magnitude(v));
-    }
-
-    // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    function qFromVectors(u, v) {
-      cross(dd, u, v);
-      const q = [dot(u, v), dd[0], dd[1], dd[2]];
-      q[0] += qnorm(q);
-      return qunit(q, q);
-    }
-
-    // http://web.archive.org/web/20161105145605/http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
-    function qFromVectors2(u, v) {
-      const n = Math.sqrt(dot(u, u) * dot(v, v)),
-            r = n + dot(u, v);
-
-      if (r < 1e-6) { // why this value?!
-        console.log('small value', r);
-        if (Math.abs(dd[0]) > Math.abs(dd[2])) return qunit(q, [0, -dd[1], dd[2], 0]);
-        else return qunit(q, [0, 0, -dd[2], dd[1]]);
-      }
-      else {
-        cross(dd, u, v);
-        const q = [r, dd[0], dd[1], dd[2]];
-
-        return qunit(q, q);
-      }
-    }
-
-    function qFromUnitVectors2(u, v) {
-      const r = 1 + dot(u, v);
-
-      if (r < 1e-6) { // why this value?!
-        console.log('small value', r);
-        if (Math.abs(dd[0]) > Math.abs(dd[2])) return qunit(q, [0, -dd[1], dd[2], 0]);
-        else return qunit(q, [0, 0, -dd[2], dd[1]]);
-      }
-      else {
-        cross(dd, u, v);
-        const q = [r, dd[0], dd[1], dd[2]];
-
-        return qunit(q, q);
-      }
-    }
-
-    function qFromVectors2(u, v) {
-      cross(dd, u, v);
-      const q = [1 + dot(u, v), dd[0], dd[1], dd[2]];
-      return qunit(q, q);
-    }
-
-    // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    function qFromUnitVectors(u, v) {
-      const m = Math.sqrt(2 + 2 * dot(u, v));
-      div(dd, cross(dd, u, v), m);
-      return [m/2, dd[0], dd[1], dd[2]];
-    }
-
-
-    //http://mathworld.wolfram.com/Quaternion.html
-    function qmult(r, q1, q2) {
-
-      const v1 = [q1[1], q1[2], q1[3]],
-            v2 = [q2[1], q2[2], q2[3]],
-            s1 = scale([0, 0, 0], v2, q1[0]),
-            s2 = scale([0, 0, 0], v1, q2[0]);
-
-      add(dd, s1, add(dd, s2, cross(dd, v1, v2)));
-
-      r[0] = q1[0] * q2[0] - dot(v1, v2);
-      r[1] = dd[0];
-      r[2] = dd[1];
-      r[3] = dd[2];
-
-      return r;
-    }
-
-    function qconj(r, q) {
-      r[0] = q[0];
-      r[1] = -q[1];
-      r[2] = -q[2];
-      r[3] = -q[3];
-
-      return r;
-    }
-
-    // don't call with d = 0
-    function qdiv(r, q, d) {
-      r[0] = q[0] / d;
-      r[1] = q[1] / d;
-      r[2] = q[2] / d;
-      r[3] = q[3] / d;
-
-      return r;
-    }
-
-    function qnorm(q) {
-      return Math.sqrt(q[0] * q[0] +
-                       q[1] * q[1] +
-                       q[2] * q[2] +
-                       q[3] * q[3]);
-    }
-
-    // assumes unit q?
-    // function qinv(r, q) {
-    //   const s = 1 / (q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-
-    //   r[0] = q[0] * s
-    //   r[1] = -q[1] * s
-    //   r[2] = -q[2] * s
-    //   r[3] = -q[3] * s
-
-    //   return r;
-    // }
-
-    function qinv(r, q) {
-      const n = qnorm(q);
-      return qdiv(r, qconj(r, q), n * n);
-    }
-
-    function qunit(r, q) {
-      return qdiv(r, q, qnorm(q));
     }
   </script>
 </mathbox>

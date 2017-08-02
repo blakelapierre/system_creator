@@ -2,13 +2,15 @@ window.createSim = () => createUniverse([new Mass(1000000, [255, 255, 0, 255])])
 
 window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, GUIUpdateRate = 100) => {
   const {startTime} = clock,
-        {events} = state;
+        {events, playback} = state;
 
   let currentTick = 0,
       lastGUIUpdate = 0,
       currentTime;
 
-  return (runTime = clock.currentTime) => {
+  return playback ? runnerWithPlayback(playback) : runner;
+
+  function runner(runTime = clock.currentTime) {
     const t = clock.ticksTo(runTime);
 
     while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
@@ -18,7 +20,28 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
     }
 
     centerOn(state.universe[0], state.universe);
-  };
+  }
+
+  function runnerWithPlayback(playback) {
+    let event = playback.shift();
+
+    return (runTime = clock.currentTime) => {
+      const t = clock.ticksTo(runTime);
+
+      while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
+        if (event && currentTick === event[0]) {
+          state.events = state.events.concat(event[1]);
+
+          event = playback.shift();
+        }
+        handleEvents(state);
+        tick(state);
+        currentTick++;
+      }
+
+      centerOn(state.universe[0], state.universe);
+    }
+  }
 
   function handleEvents(state) {
     const {eventLog, events} = state;
