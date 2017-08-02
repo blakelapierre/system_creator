@@ -2,7 +2,7 @@ window.createSim = () => createUniverse([new Mass(1000000, [255, 255, 0, 255])])
 
 window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, GUIUpdateRate = 100) => {
   const {startTime} = clock,
-        {events, playback} = state;
+        {events, inputEvents, playback} = state;
 
   let currentTick = 0,
       lastGUIUpdate = 0,
@@ -30,7 +30,7 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
 
       while (currentTick < t && ((currentTime = clock.currentTime) - runTime) < maxRunTime) {
         if (event && currentTick === event[0]) {
-          state.events = state.events.concat(event[1]);
+          state.inputEvents = state.inputEvents.concat(event[1]);
 
           event = playback.shift();
         }
@@ -44,17 +44,24 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
   }
 
   function handleEvents(state) {
-    const {eventLog, events} = state;
-    if (events.length === 0) return;
+    const {eventLog, events, inputEvents} = state;
+    if (events.length === 0 && inputEvents.length === 0) return;
 
-    eventLog.push([currentTick, events.slice()]);
+    if (inputEvents.length !== 0) eventLog.push([currentTick, inputEvents.slice()]);
+
+    for (let i = 0; i < inputEvents.length; i++) {
+      const event = inputEvents[i];
+
+      (eevents[event[0]] || defaultHandler(event))(event, state, clock, currentTick, currentTime);
+    }
 
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
 
-      (eevents[event[0]] || defaultHandler(event))(event, state);
+      (eevents[event[0]] || defaultHandler(event))(event, state, clock, currentTick, currentTime);
     }
 
+    inputEvents.splice(0);
     events.splice(0);
   }
 
@@ -69,6 +76,7 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
 function createUniverse(existingMasses) {
   const universe = [...existingMasses],
         events = [],
+        inputEvents = [],
         uievents = [];
 
   const [
@@ -85,7 +93,7 @@ function createUniverse(existingMasses) {
     return properties.map(p => list.map(item => item[p]));
   }
 
-  return {universe, events, eevents, uievents, uuievents, positions, velocities, accelerations, gravities, masses, sizes, colors, currentTick: 0, collisionList: [], tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, fieldOfView: 120, eventLog: []};
+  return {universe, inputEvents, events, eevents, uievents, uuievents, positions, velocities, accelerations, gravities, masses, sizes, colors, currentTick: 0, collisionList: [], tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, fieldOfView: 120, eventLog: []};
 }
 
 function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick}) {
@@ -316,7 +324,18 @@ const eevents = {
 
   // internal
   'absorbed': absorbed,
-  'poof': poof
+  'poof': poof,
+
+  'gravityConstant': ([_, gravityConstant], state) => state.gravityConstant = gravityConstant,
+  'ticksPerStep': ([_, ticksPerStep], state, clock, currentTick, currentTime) => {
+    state.ticksPerStep = ticksPerStep;
+    clock.setNewStartTime(currentTime, currentTick);
+  },
+  'stepsPerSecond': ([_, stepsPerSecond], state, clock, currentTick, currentTime) => {
+    state.stepsPerSecond = stepsPerSecond
+    clock.setNewStartTime(currentTime, currentTick);
+  },
+  'fov': ([_, fov], state) => state.fov = fov
 };
 
 const uuievents = {
@@ -378,16 +397,22 @@ class Clock {
   constructor(state) {
     this.state = state;
     this.startTime = this.currentTime;
+    this.currentTick = state.currentTick;
   }
 
   get currentTime() { return new Date().getTime(); }
 
   ticksTo(time) {
-    return this.ticksFor(time - this.startTime);
+    return this.ticksFor(time - this.startTime) + this.currentTick;
   }
 
   ticksFor(dt) {
     return Math.floor((dt / 1000) * this.state.ticksPerStep * this.state.stepsPerSecond)
+  }
+
+  setNewStartTime(startTime, currentTick) {
+    this.startTime = startTime;
+    this.currentTick = currentTick;
   }
 }
 

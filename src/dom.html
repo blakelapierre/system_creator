@@ -15,9 +15,11 @@
     window.addEventListener('beforeunload', event => {
       if (!localStorage) return console.log('No localStorage. Unable to save system!');
 
-      const storage = JSON.parse(localStorage['systems'] || '[]');
-      storage.push([new Date().getTime(), simState.eventLog]);
-      localStorage.setItem('systems', JSON.stringify(storage));
+      if (simState.eventLog.length > 0) {
+        const storage = JSON.parse(localStorage['systems'] || '[]');
+        storage.push([new Date().getTime(), simState.eventLog]);
+        localStorage.setItem('systems', JSON.stringify(storage));
+      }
     });
 
 
@@ -168,7 +170,7 @@
         document.getElementsByTagName('interface')[0],
         state,
         {
-          create: ({position, velocity, mass, color}) => state.events.push(['newmass', {position, velocity, mass, color}]),
+          create: ({position, velocity, mass, color}) => state.inputEvents.push(['newmass', {position: position.slice(), velocity: velocity.slice(), mass, color: color.slice()}]),
           restart: () => {
             simState = window.createSim();
 
@@ -222,11 +224,21 @@
 
             stop = true;
           },
-          setGravityConstant: gravityConstant => state.gravityConstant = gravityConstant,
-          setTicksPerStep: ticksPerStep => state.ticksPerStep = ticksPerStep,
-          setStepsPerSecond: stepsPerSecond => state.stepsPerSecond = stepsPerSecond,
+          share: system => {
+
+          },
+          delete: systemIndex => {
+            if (confirm('Are you sure you want to delete?')) {
+              const systems = JSON.parse(localStorage['systems'] || '[]');
+              systems.splice(systemIndex, 1);
+              localStorage['systems'] = JSON.stringify(systems);
+            }
+          },
+          setGravityConstant: gravityConstant => state.inputEvents.push(['gravityConstant', gravityConstant]),
+          setTicksPerStep: ticksPerStep => state.inputEvents.push(['ticksPerStep', ticksPerStep]),
+          setStepsPerSecond: stepsPerSecond => state.inputEvents.push(['stepsPerSecond', stepsPerSecond]),
           setFieldOfView: fov => {
-            state.fov = fov;
+            state.inputEvents.push(['fov', fov]);
             view.select('camera').set('fov', fov)
           }
         }
