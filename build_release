@@ -15,4 +15,6 @@ echo "Browserifying..." && \
 browserify .transpiled/handlers/custom/index.js | uglifyjs -cm > dist/handler.min.js && \
 browserify .transpiled/loadPreact.js | uglifyjs -cm > dist/loadPreact.js && \
 
+gulp index && \
+
 echo "Built handler.js"
