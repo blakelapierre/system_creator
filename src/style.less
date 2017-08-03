@@ -819,7 +819,6 @@ trump {
     bottom: 0;
 
     display: flex;
-    display: none;
 
     justify-content: center;
     align-items: center;
@@ -1120,18 +1119,20 @@ universe {
   overflow-x: auto;
 }
 
-save {
+controls {
   position: fixed;
 
   top: 0;
   right: 0;
 
+  max-height: 60%;
+
+  overflow: auto;
+
+  text-align: right;
+
   load {
     display: block;
-
-    max-height: 75%;
-
-    overflow: auto;
 
     color: #fff;
 
@@ -1139,6 +1140,59 @@ save {
       display: block;
 
       cursor: pointer;
+
+      info {
+        display: flex;
+
+        justify-content: space-between;
+      }
+
+      img {
+        display: block;
+        height: 1em;
+        width: 100%;
+      }
+    }
+
+    share-system {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
+
+      overflow: auto;
+
+      full-link {
+        font-size: 0.85em;
+
+        width: 50%;
+
+        max-height: 50%;
+
+        word-break: break-all;
+
+        background-color: #000;
+        color: #fff;
+
+        overflow: auto;
+      }
+
+      shorten {
+        padding: 2em;
+
+        background-color: #fff;
+        color: #000;
+
+        cursor: pointer;
+      }
     }
   }
 }

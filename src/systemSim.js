@@ -112,13 +112,10 @@ function addMass(newMass, {universe, positions, velocities, accelerations, gravi
 
   uievents.push(['newmass']);
 
-  console.log(sizes);
-
   return newMass;
 }
 
 function newMass([_, {position: p, velocity: v, mass, color}], state) {
-  console.log('newmass', p, v, mass, color);
   const {position: tp, velocity: tv} = state.universe[0] || {position: [0, 0, 0], velocity: [0, 0, 0]};
   const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
 
@@ -243,9 +240,8 @@ function tick(state) {
 
   function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions, universe) {
     if (collisions.length === 0) {
-      const threshold = (s1 + s2) / 150;
+      const threshold = (s1 + s2) / 125;
       if (distance < threshold) { // better ordering of checks?
-        console.log(distance, threshold, s1, s2);
         if (m1 <= m2) {
           //wtf is this
           collisions.push([universe[i], universe[j], i, j]);
