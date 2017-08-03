@@ -811,7 +811,7 @@ trump {
     }
   }
 
-  made-with {
+  splash {
     position: fixed;
     top: 0;
     left: 0;
@@ -819,138 +819,82 @@ trump {
     bottom: 0;
 
     display: flex;
+    flex-direction: column;
 
     justify-content: center;
     align-items: center;
 
     white-space: pre;
 
-    font-size: 1.8vw;
     font-family: monospace;
-
-    line-height: 1.5em;
 
     color: #fff;
     background-color: #000;
 
     overflow: auto;
 
-    z-index: 3;
-
     cursor: pointer;
 
     &.given {
       display: none;
     }
-  }
 
-  notice {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    made-with {
+      display: flex;
 
-    display: none;
+      flex: 1 1 auto;
 
-    font-size: 5vw;
+      justify-content: center;
+      align-items: center;
 
-    z-index: 2;
+      font-size: 2vh;
 
-    transform: scale(1);
+      line-height: 1em;
 
-    user-select: none;
+      components {
+        display: flex;
+        flex-direction: column;
 
-    cursor: pointer;
+        justify-content: center;
 
-    &.no-intro {
-      display: none;
+        flex: 1 1 auto;
+
+        align-self: stretch;
+
+        overflow: auto;
+      }
     }
 
-    &.given {
-      display: block;
+    license {
+      flex: 0 1 auto;
 
-      &.connected {
-        transform: scale(0);
+      max-height: 33%;
 
-        animation: fade-color-out 2*3s ease-in-out;
+      display: flex;
+      flex-direction: column;
 
-        screen {
-          animation: fade-background-out 2*3s ease-in-out forwards;
-        }
+      justify-content: center;
 
-        message {
-          animation: fade-color-out 2s ease-in-out forwards;
-        }
+      text-align: center;
 
-        standby, failure {
-          animation: none;
-        }
+      head, name {
+        font-weight: bold;
+        font-size: 1.1em;
       }
 
-      screen {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        background-color: rgba(0, 0, 0, 1);
-      }
-
-      message {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-
+      licenses {
         display: flex;
-
-        color: rgba(255, 255, 255, 1);
+        flex-direction: column;
 
         align-items: center;
-        justify-content: center;
 
-        animation: fade 2s ease-out forwards;
-      }
+        max-width: 75vw;
 
-      standby {
-        position: absolute;
+        white-space: pre-wrap;
 
-        left: 0;
-        right: 0;
-        bottom: 33%;
+        overflow: auto;
 
-        display: flex;
-
-        font-size: 2vw;
-
-        color: rgba(255, 255, 255, 0);
-
-        align-items: center;
-        justify-content: center;
-
-        animation: cycle 8s 0s ease-in-out infinite;
-      }
-
-      failure {
-        position: absolute;
-
-        left: 0;
-        right: 0;
-        bottom: 33%;
-
-        display: flex;
-
-        font-size: 2vw;
-
-        color: rgba(255, 255, 255, 0);
-
-        align-items: center;
-        justify-content: center;
-
-        animation: cycle 8s 4s ease-in-out infinite;
+        cursor: text;
       }
     }
   }
