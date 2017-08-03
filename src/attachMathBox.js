@@ -14,6 +14,9 @@ import {diffChars} from 'diff';
 
 import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
 
+window.compressToEncodedURIComponent = compressToEncodedURIComponent;
+window.decompressFromEncodedURIComponent = decompressFromEncodedURIComponent;
+
 window.addEventListener('error', error => {
   console.log(error);
   return false;

@@ -12,6 +12,7 @@
       document.body.removeEventListener('touchstart', goFullScreen);
     }
 
+/*
     window.addEventListener('beforeunload', event => {
       if (!localStorage) return console.log('No localStorage. Unable to save system!');
 
@@ -21,10 +22,78 @@
         localStorage.setItem('systems', JSON.stringify(storage));
       }
     });
+*/
 
+    if (localStorage && localStorage['saveOnExit'] === 'true')
+      window.addEventListener('beforeunload', save);
+
+    const thumbnailCanvas = document.createElement('canvas'),
+          thumbnailContext = thumbnailCanvas.getContext('2d');
+
+    thumbnailCanvas.height = 1;
+    thumbnailCanvas.width = 100;
+
+    function save() {
+      if (!localStorage) return alert('No localStorage!');
+
+      const {eventLog} = simState;
+
+      if (eventLog.length === 0) return;
+
+      const systems = JSON.parse(localStorage['systems'] || '[]');
+      const thumbnail = createThumbnail(simState.eventLog, thumbnailContext, thumbnailCanvas);
+      systems.push([new Date().getTime(), simState.eventLog, thumbnail]);
+      localStorage['systems'] = JSON.stringify(systems);
+
+      function createThumbnail(eventLog, context, canvas) {
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        const max = eventLog[eventLog.length - 1][0]
+
+        let currentBin = canvas.width,
+            height = 0;
+
+        for (let i = eventLog.length - 1; i >= 0; i--) {
+          const [time, events] = eventLog[i],
+                bin = Math.floor((time / max) * canvas.width);
+  console.log(time, events);
+          currentBin = bin;
+          height = 0;
+
+          const color = events.reduce((color, event, i) => {
+                          const [type] = event;
+  console.log(event, type);
+                          if (type === 'newmass') {
+                            const {color: massColor} = event[1];
+
+                            console.log(massColor);
+
+                            color[0] += massColor[0];
+                            color[1] += massColor[1];
+                            color[2] += massColor[2];
+                            color[3] += massColor[3];
+                          }
+
+                          return color;
+                        }, [0, 0, 0, 0]).map(component => component / events.length), // should weight by mass?
+                [r, g, b, a] = color;
+
+          context.fillStyle = `rgba(${Math.floor(r * 128)}, ${Math.floor(g * 128)}, ${Math.floor(b * 128)}, ${a})`;
+          context.fillRect(bin, height, 1, 1);
+        }
+
+        return canvas.toDataURL();
+      }
+    }
 
     let simState = window.createSim(),
         {universe, positions, colors, sizes, eevents, uuievents, fieldOfView} = simState;
+
+    if (window.location.hash) {
+      const system = JSON.parse(window.decompressFromEncodedURIComponent(window.location.hash.substr(1)));
+      simState.playback = system;
+    }
 
     // renderUniverse(simState);
 
@@ -61,16 +130,16 @@
 
     let given, needsStart;
 
-    // stateEl.addEventListener('click', stateGiven);
+    const madeWithEl = document.querySelector('made-with');
+    madeWithEl.addEventListener('click', madeWithGiven);
 
-    // setTimeout(stateGiven, 1000 * 60);
-    setTimeout(stateGiven, 0);
+    setTimeout(madeWithGiven, 1000 * 7);
+    // setTimeout(madeWithGiven, 0);
 
-    function stateGiven() {
+    function madeWithGiven() {
       given = true;
-      // stateEl.classList.add('given');
-      // noticeEl.classList.add('given');
       if (needsStart) needsStart();
+      madeWithEl.classList.add('given');
     }
 
     const updateWidth = {
@@ -193,13 +262,7 @@
 
             stop = true;
           },
-          save: () => {
-            if (!localStorage) return alert('No localStorage!');
-
-            const systems = JSON.parse(localStorage['systems'] || '[]');
-            systems.push([new Date().getTime(), state.eventLog]);
-            localStorage['systems'] = JSON.stringify(systems);
-          },
+          save,
           load: (system) => {
             simState = window.createSim();
 
@@ -224,9 +287,6 @@
 
             stop = true;
           },
-          share: system => {
-
-          },
           delete: systemIndex => {
             if (confirm('Are you sure you want to delete?')) {
               const systems = JSON.parse(localStorage['systems'] || '[]');
@@ -240,7 +300,10 @@
           setFieldOfView: fov => {
             state.inputEvents.push(['fov', fov]);
             view.select('camera').set('fov', fov)
-          }
+          },
+          setSaveSystemOnExit: saveOnExit => saveOnExit ? 
+                                      window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) : 
+                                      window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined)
         }
       );
 
