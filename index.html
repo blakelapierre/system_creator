@@ -970,10 +970,14 @@ clock {
 
     let given, needsStart;
 
-    const splashEl = document.querySelector('splash');
+    const splashEl = document.querySelector('splash'),
+          licensesEl = document.querySelector('licenses');
     splashEl.addEventListener('click', splashGiven);
 
-    setTimeout(splashGiven, 1000 * 7);
+    licensesEl.addEventListener('click', event => clearTimeout(splashTimeout) & event.stopPropagation());
+    licensesEl.addEventListener('wheel', event => clearTimeout(splashTimeout) & event.stopPropagation());
+
+    const splashTimeout = setTimeout(splashGiven, 1000 * 7);
     // setTimeout(splashGiven, 0);
 
     function splashGiven() {
@@ -1195,7 +1199,7 @@ clock {
   </made-with>
 
   <license>
-    <head>Portions of this software may be licensed under the following terms:</head>
+    <head>This software may be licensed under the following terms:</head>
 
     <licenses>
       <name>MathBox</name>
