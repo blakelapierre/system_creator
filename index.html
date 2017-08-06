@@ -897,17 +897,15 @@ clock {
         for (let i = eventLog.length - 1; i >= 0; i--) {
           const [time, events] = eventLog[i],
                 bin = Math.floor((time / max) * canvas.width);
-  console.log(time, events);
+                
           currentBin = bin;
           height = 0;
 
           const color = events.reduce((color, event, i) => {
                           const [type] = event;
-  console.log(event, type);
+
                           if (type === 'newmass') {
                             const {color: massColor} = event[1];
-
-                            console.log(massColor);
 
                             color[0] += massColor[0];
                             color[1] += massColor[1];
@@ -937,7 +935,7 @@ clock {
 
     // renderUniverse(simState);
 
-    function renderUniverse({universe, positions, colors, sizes, fieldOfView}) {
+    function renderUniverse({universe, positions, colors, sizes, fieldOfView, MAX_MASSES}) {
       return render(
         <root>
           <camera proxy={true}
@@ -948,30 +946,29 @@ clock {
           <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
                      scale={[1, 1, 1]}>
             <array id="positions"
-                   width={universe.length}
+                   width={MAX_MASSES}
                    channels={3}
                    history={1}
                    data={positions} />
             <array id="colors"
-                   width={universe.length}
+                   width={MAX_MASSES}
                    channels={4}
                    data={colors} />
             <array id="sizes"
-                   width={universe.length}
+                   width={MAX_MASSES}
                    channels={1}
                    data={sizes} />
-            <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9}/>
+            <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9} />
           </cartesian>
         </root>
       );
     }
 
-    if (window.location.search === '?nointro') document.querySelector('notice').classList.add('no-intro');
-
     let given, needsStart;
 
     const splashEl = document.querySelector('splash'),
           licensesEl = document.querySelector('licenses');
+    
     splashEl.addEventListener('click', splashGiven);
 
     licensesEl.addEventListener('click', event => clearTimeout(splashTimeout) & event.stopPropagation());
@@ -1657,8 +1654,12 @@ function createUniverse(existingMasses) {
   var universe = [].concat(_toConsumableArray(existingMasses)),
       events = [],
       inputEvents = [],
-      uievents = [];
+      uievents = [],
+      massPool = new Array(100);
 
+  for (var i = 0; i < massPool.length; i++) {
+    massPool[i] = new Mass();
+  }
   var _map = map(universe, ['position', 'velocity', 'acceleration', 'gravity', 'mass', 'size', 'color']);
 
   var _map2 = _slicedToArray(_map, 7);
@@ -1680,7 +1681,30 @@ function createUniverse(existingMasses) {
     });
   }
 
-  return { universe: universe, inputEvents: inputEvents, events: events, eevents: eevents, uievents: uievents, uuievents: uuievents, positions: positions, velocities: velocities, accelerations: accelerations, gravities: gravities, masses: masses, sizes: sizes, colors: colors, currentTick: 0, collisionList: [], tick: tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, fieldOfView: 120, eventLog: [] };
+  return {
+    universe: universe,
+    inputEvents: inputEvents,
+    events: events,
+    eevents: eevents,
+    uievents: uievents,
+    uuievents: uuievents,
+    massPool: massPool,
+    positions: positions,
+    velocities: velocities,
+    accelerations: accelerations,
+    gravities: gravities,
+    masses: masses,
+    sizes: sizes,
+    colors: colors,
+    currentTick: 0,
+    collisionList: [],
+    tick: tick,
+    ticksPerStep: 60,
+    stepsPerSecond: 1,
+    gravityConstant: 6.67408e-7,
+    fieldOfView: 120,
+    MAX_MASSES: 100,
+    eventLog: [] };
 }
 
 function addMass(newMass, _ref) {
@@ -1694,6 +1718,10 @@ function addMass(newMass, _ref) {
   var colors = _ref.colors;
   var uievents = _ref.uievents;
   var currentTick = _ref.currentTick;
+  var MAX_MASSES = _ref.MAX_MASSES;
+
+  if (universe.length >= MAX_MASSES) return undefined;
+
   var position = newMass.position;
   var velocity = newMass.velocity;
   var acceleration = newMass.acceleration;
@@ -1733,23 +1761,33 @@ function newMass(_ref2, state) {
 
   var tp = _ref4.position;
   var tv = _ref4.velocity;
-
-  var newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
+  var newMass = addMass(getNewMass(state, mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
+  //const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]));
 
   setStat('masses', state.universe.length);
 }
 
-function absorbed(event, _ref5) {
-  var uievents = _ref5.uievents;
+function getNewMass(_ref5, mass, color, position, velocity) {
+  var massPool = _ref5.massPool;
+
+  if (massPool.length > 0) {
+    var m = massPool.pop();
+    m.delayCreate(mass, color, position, velocity);
+    return m;
+  } else return new Mass(mass, color, position, velocity);
+}
+
+function absorbed(event, _ref6) {
+  var uievents = _ref6.uievents;
 
   uievents.push(event);
 }
 
-function poof(_ref6) {
-  var _ref7 = _slicedToArray(_ref6, 2);
+function poof(_ref7) {
+  var _ref8 = _slicedToArray(_ref7, 2);
 
-  var _ = _ref7[0];
-  var mass = _ref7[1];
+  var _ = _ref8[0];
+  var mass = _ref8[1];
 
   if (mass instanceof TweetSpawn) {
     tweetSpawn.splice(tweetSpawn.indexOf(mass), 1);
@@ -1780,9 +1818,9 @@ function tick(state) {
   updateVelocities(state);
   resolveCollisions(state);
 
-  function positionHalfTick(_ref8) {
-    var universe = _ref8.universe;
-    var ticksPerStep = _ref8.ticksPerStep;
+  function positionHalfTick(_ref9) {
+    var universe = _ref9.universe;
+    var ticksPerStep = _ref9.ticksPerStep;
 
     for (var i = 0; i < universe.length; i++) {
       var mass = universe[i];
@@ -1792,11 +1830,11 @@ function tick(state) {
     }
   }
 
-  function updateGravities(_ref9) {
-    var universe = _ref9.universe;
-    var collisionList = _ref9.collisionList;
-    var ticksPerStep = _ref9.ticksPerStep;
-    var gravityConstant = _ref9.gravityConstant;
+  function updateGravities(_ref10) {
+    var universe = _ref10.universe;
+    var collisionList = _ref10.collisionList;
+    var ticksPerStep = _ref10.ticksPerStep;
+    var gravityConstant = _ref10.gravityConstant;
 
     for (var i = 0; i < universe.length; i++) {
       updatePairs(i, universe, collisionList, ticksPerStep, gravityConstant);
@@ -1886,9 +1924,9 @@ function tick(state) {
     }
   }
 
-  function updateVelocities(_ref10) {
-    var universe = _ref10.universe;
-    var ticksPerStep = _ref10.ticksPerStep;
+  function updateVelocities(_ref11) {
+    var universe = _ref11.universe;
+    var ticksPerStep = _ref11.ticksPerStep;
 
     universe.forEach(function (mass) {
       return updateMassVelocityAndPartialPosition(mass, ticksPerStep);
@@ -1900,17 +1938,17 @@ function tick(state) {
     mass.positionHalfTick(ticksPerStep);
   }
 
-  function resolveCollisions(_ref11) {
-    var universe = _ref11.universe;
-    var positions = _ref11.positions;
-    var velocities = _ref11.velocities;
-    var accelerations = _ref11.accelerations;
-    var gravities = _ref11.gravities;
-    var masses = _ref11.masses;
-    var sizes = _ref11.sizes;
-    var colors = _ref11.colors;
-    var events = _ref11.events;
-    var collisionList = _ref11.collisionList;
+  function resolveCollisions(_ref12) {
+    var universe = _ref12.universe;
+    var positions = _ref12.positions;
+    var velocities = _ref12.velocities;
+    var accelerations = _ref12.accelerations;
+    var gravities = _ref12.gravities;
+    var masses = _ref12.masses;
+    var sizes = _ref12.sizes;
+    var colors = _ref12.colors;
+    var events = _ref12.events;
+    var collisionList = _ref12.collisionList;
 
     for (var i = collisionList.length - 1; i >= 0; i--) {
       var _collisionList$i = _slicedToArray(collisionList[i], 2);
@@ -1977,36 +2015,36 @@ var eevents = {
   'absorbed': absorbed,
   'poof': poof,
 
-  'gravityConstant': function gravityConstant(_ref12, state) {
-    var _ref13 = _slicedToArray(_ref12, 2);
+  'gravityConstant': function gravityConstant(_ref13, state) {
+    var _ref14 = _slicedToArray(_ref13, 2);
 
-    var _ = _ref13[0];
-    var _gravityConstant = _ref13[1];
+    var _ = _ref14[0];
+    var _gravityConstant = _ref14[1];
     return state.gravityConstant = _gravityConstant;
   },
-  'ticksPerStep': function ticksPerStep(_ref14, state, clock, currentTick, currentTime) {
-    var _ref15 = _slicedToArray(_ref14, 2);
+  'ticksPerStep': function ticksPerStep(_ref15, state, clock, currentTick, currentTime) {
+    var _ref16 = _slicedToArray(_ref15, 2);
 
-    var _ = _ref15[0];
-    var _ticksPerStep = _ref15[1];
+    var _ = _ref16[0];
+    var _ticksPerStep = _ref16[1];
 
     state.ticksPerStep = _ticksPerStep;
     clock.setNewStartTime(currentTime, currentTick);
   },
-  'stepsPerSecond': function stepsPerSecond(_ref16, state, clock, currentTick, currentTime) {
-    var _ref17 = _slicedToArray(_ref16, 2);
+  'stepsPerSecond': function stepsPerSecond(_ref17, state, clock, currentTick, currentTime) {
+    var _ref18 = _slicedToArray(_ref17, 2);
 
-    var _ = _ref17[0];
-    var _stepsPerSecond = _ref17[1];
+    var _ = _ref18[0];
+    var _stepsPerSecond = _ref18[1];
 
     state.stepsPerSecond = _stepsPerSecond;
     clock.setNewStartTime(currentTime, currentTick);
   },
-  'fov': function fov(_ref18, state) {
-    var _ref19 = _slicedToArray(_ref18, 2);
+  'fov': function fov(_ref19, state) {
+    var _ref20 = _slicedToArray(_ref19, 2);
 
-    var _ = _ref19[0];
-    var _fov = _ref19[1];
+    var _ = _ref20[0];
+    var _fov = _ref20[1];
     return state.fov = _fov;
   }
 };
@@ -2017,30 +2055,31 @@ var uuievents = {
   // 'absorbed': event => absorbedEl.classList.remove('show'),
   // 'absorbedBy': event => absorbedByEl.classList.remove('show'),
   // 'poof': event => poofEl.classList.remove('show'),
-  'newmass': function newmass(event, view, _ref20) {
-    var positions = _ref20.positions;
-    var colors = _ref20.colors;
-    var sizes = _ref20.sizes;
+  'newmass': function newmass(event, view, _ref21) {
+    // view.select('#positions').set('width', positions.length);
+    // view.select('#colors').set('width', colors.length);
+    // view.select('#sizes').set('width', sizes.length);
 
-    view.select('#positions').set('width', positions.length);
-    view.select('#colors').set('width', colors.length);
-    view.select('#sizes').set('width', sizes.length);
+    var positions = _ref21.positions;
+    var colors = _ref21.colors;
+    var sizes = _ref21.sizes;
   },
-  'log': function log(_ref21) {
+  'log': function log(_ref22) {
     var _console;
 
-    var _ref22 = _toArray(_ref21);
+    var _ref23 = _toArray(_ref22);
 
-    var _log = _ref22[0];
+    var _log = _ref23[0];
 
-    var args = _ref22.slice(1);
+    var args = _ref23.slice(1);
 
     return (_console = console).log.apply(_console, ['log'].concat(_toConsumableArray(args)));
   }
 };
 
 var Mass = function () {
-  function Mass(mass, color) {
+  function Mass(mass) {
+    var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [255, 255, 255, 2];
     var position = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0, 0];
     var velocity = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [0, 0, 0];
     var acceleration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : [0, 0, 0];
@@ -2055,12 +2094,38 @@ var Mass = function () {
     this.velocity = velocity;
     this.acceleration = acceleration;
     this.gravity = gravity;
-    this.boost = [0, 0, 0];
-    this.emissionCounter = 0;
     this.collisions = [];
   }
 
   _createClass(Mass, [{
+    key: 'delayCreate',
+    value: function delayCreate(mass, color, position, velocity) {
+      this.mass = mass;
+
+      this.color[0] = color[0];
+      this.color[1] = color[1];
+      this.color[2] = color[2];
+      this.color[3] = color[3];
+
+      this.position[0] = position[0];
+      this.position[1] = position[1];
+      this.position[2] = position[2];
+
+      this.velocity[0] = velocity[0];
+      this.velocity[1] = velocity[1];
+      this.velocity[2] = velocity[2];
+
+      this.acceleration[0] = 0;
+      this.acceleration[1] = 0;
+      this.acceleration[2] = 0;
+
+      this.gravity[0] = 0;
+      this.gravity[1] = 0;
+      this.gravity[2] = 0;
+
+      this.collisions.splice(0);
+    }
+  }, {
     key: 'positionHalfTick',
 
     // get size() { return this.mass; }
@@ -2086,9 +2151,7 @@ var Mass = function () {
     key: 'mass',
     set: function set(value) {
       this._mass = value;this._sizeContainer[0] = Math.pow(3 / (4 * Math.PI) * value, 1 / 3);
-    }
-    // set mass(value) { this._mass = value; this._sizeContainer[0] = 5 * Math.pow(value / Math.PI, 1 / 2); }
-    ,
+    },
     get: function get() {
       return this._mass;
     }
