@@ -77,7 +77,10 @@ function createUniverse(existingMasses) {
   const universe = [...existingMasses],
         events = [],
         inputEvents = [],
-        uievents = [];
+        uievents = [],
+        massPool = new Array(100);
+
+  for (let i = 0; i < massPool.length; i++) massPool[i] = new Mass();
 
   const [
     positions,
@@ -93,10 +96,35 @@ function createUniverse(existingMasses) {
     return properties.map(p => list.map(item => item[p]));
   }
 
-  return {universe, inputEvents, events, eevents, uievents, uuievents, positions, velocities, accelerations, gravities, masses, sizes, colors, currentTick: 0, collisionList: [], tick, ticksPerStep: 60, stepsPerSecond: 1, gravityConstant: 6.67408e-7, fieldOfView: 120, eventLog: []};
+  return {
+    universe, 
+    inputEvents, 
+    events, 
+    eevents, 
+    uievents, 
+    uuievents, 
+    massPool, 
+    positions, 
+    velocities, 
+    accelerations, 
+    gravities, 
+    masses, 
+    sizes, 
+    colors, 
+    currentTick: 0, 
+    collisionList: [], 
+    tick, 
+    ticksPerStep: 60, 
+    stepsPerSecond: 1, 
+    gravityConstant: 6.67408e-7, 
+    fieldOfView: 120, 
+    MAX_MASSES: 100,
+    eventLog: []};
 }
 
-function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick}) {
+function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick, MAX_MASSES}) {
+  if (universe.length >= MAX_MASSES) return undefined;
+  
   const {position, velocity, acceleration, gravity, mass, size, color} = newMass;
 
   newMass.created = currentTick;
@@ -116,10 +144,20 @@ function addMass(newMass, {universe, positions, velocities, accelerations, gravi
 }
 
 function newMass([_, {position: p, velocity: v, mass, color}], state) {
-  const {position: tp, velocity: tv} = state.universe[0] || {position: [0, 0, 0], velocity: [0, 0, 0]};
-  const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
+  const {position: tp, velocity: tv} = state.universe[0] || {position: [0, 0, 0], velocity: [0, 0, 0]},
+        newMass = addMass(getNewMass(state, mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
+  //const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]));
 
   setStat('masses', state.universe.length);
+}
+
+function getNewMass({massPool}, mass, color, position, velocity) {
+  if (massPool.length > 0) {
+    const m = massPool.pop();
+    m.delayCreate(mass, color, position, velocity);
+    return m;
+  }
+  else return new Mass(mass, color, position, velocity);
 }
 
 
@@ -341,15 +379,15 @@ const uuievents = {
   // 'absorbedBy': event => absorbedByEl.classList.remove('show'),
   // 'poof': event => poofEl.classList.remove('show'),
   'newmass': (event, view, {positions, colors, sizes}) => {
-    view.select('#positions').set('width', positions.length);
-    view.select('#colors').set('width', colors.length);
-    view.select('#sizes').set('width', sizes.length);
+   // view.select('#positions').set('width', positions.length);
+   // view.select('#colors').set('width', colors.length);
+   // view.select('#sizes').set('width', sizes.length);
   },
   'log': ([log, ...args]) => console.log('log', ...args)
 };
 
 class Mass {
-  constructor(mass, color, position = [0, 0, 0], velocity = [0, 0, 0], acceleration = [0, 0, 0], gravity = [0, 0, 0]) {
+  constructor(mass, color = [255, 255, 255, 2], position = [0, 0, 0], velocity = [0, 0, 0], acceleration = [0, 0, 0], gravity = [0, 0, 0]) {
     this._sizeContainer = [];
     this.mass = mass;
     this.color = color;
@@ -357,13 +395,38 @@ class Mass {
     this.velocity = velocity;
     this.acceleration = acceleration;
     this.gravity = gravity;
-    this.boost = [0, 0, 0];
-    this.emissionCounter = 0;
     this.collisions = [];
   }
 
+  delayCreate(mass, color, position, velocity) {
+    this.mass = mass;
+    
+    this.color[0] = color[0];
+    this.color[1] = color[1];
+    this.color[2] = color[2];
+    this.color[3] = color[3];
+  
+    this.position[0] = position[0];
+    this.position[1] = position[1];
+    this.position[2] = position[2];
+  
+    this.velocity[0] = velocity[0];
+    this.velocity[1] = velocity[1];
+    this.velocity[2] = velocity[2];
+
+    this.acceleration[0] = 0;
+    this.acceleration[1] = 0;
+    this.acceleration[2] = 0;
+
+    this.gravity[0] = 0;
+    this.gravity[1] = 0;
+    this.gravity[2] = 0;
+
+    this.collisions.splice(0);
+  }
+
   set mass(value) { this._mass = value; this._sizeContainer[0] = Math.pow((3 / (4 * Math.PI)) * value, 1 / 3); }
-  // set mass(value) { this._mass = value; this._sizeContainer[0] = 5 * Math.pow(value / Math.PI, 1 / 2); }
+
   get mass() { return this._mass; }
 
   get name() { return 'Mass'; }
