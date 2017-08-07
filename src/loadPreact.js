@@ -77,9 +77,7 @@ class Create extends Component {
             <tr>
               <td>Mass: </td>
               <td>
-                <input class="mass" type="number" min="1" step="100" value={this.state.massBase} onChange={({target: {value}}) => this.setState({massBase: parseFloat(value, 10)})} />
-                x 10 ^
-                <input class="mass-exponent" type="number" min="0" step="1" value={this.state.massExponent} onChange={({target: {value}}) => this.setState({massExponent: parseFloat(value, 10)})} />
+                <NumberWithExponent state={this.state} base="massBase" exponent="massExponent" />
               </td>
             </tr>
             <tr>
@@ -116,23 +114,61 @@ class Create extends Component {
   }
 }
 
+class NumberWithExponent extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render({base, exponent, state}) {
+    return (
+      <number-with-exponent>
+        <Number state={state} valueKey={base} min={1} step={100} onChange={({target: {value}}) => state[base] = parseFloat(value, 10)} />
+        <span>x10^</span>
+        <Number state={state} valueKey={exponent} min={0} step={1} onChange={({target: {value}}) => state[exponent] = parseFloat(value, 10)} />
+      </number-with-exponent>
+    );
+  }
+}
+
+class Number extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      [props.valueKey]: props.state[props.valueKey]
+    };
+
+    console.log(this.state, props);
+  }
+
+  render({state, valueKey, min, step, onChange}) {
+    return (
+      <number>
+        <input type="number" min={min} step={step} value={state[valueKey]} onChange={onChange} />
+      </number>
+    );
+  }
+}
+
 class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const {gravityConstant, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = props.state;
+    const {gravityConstant, speedlimit, ticksPerStep, stepsPerSecond, maximumMasses, fieldOfView, saveOnExit} = props.state;
 
     this.state = {
       gravityConstant,
+      speedlimit,
       ticksPerStep,
       stepsPerSecond,
+      maximumMasses,
       fieldOfView,
       saveOnExit
     };
   }
 
   render({state, actions}) {
-    const {gravityConstant, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = this.state;
+    const {gravityConstant, speedlimit, ticksPerStep, stepsPerSecond, maximumMasses, fieldOfView, saveOnExit} = this.state;
 
     return (
       <settings>
@@ -146,6 +182,16 @@ class Settings extends Component {
                   value={gravityConstant}
                   step="0.00000001"
                   onInput={({target: {value}}) => actions['setGravityConstant'](parseFloat(value, 10)) & this.setState({gravityConstant: parseFloat(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Speedlimit:</td>
+              <td>
+                <input
+                  type="number"
+                  value={speedlimit}
+                  step="1"
+                  onInput={({target: {value}}) => actions['setSpeedlimit'](parseFloat(value, 10)) & this.setState({speedlimit: parseFloat(value, 10)})} />
               </td>
             </tr>
             <tr>
@@ -168,6 +214,17 @@ class Settings extends Component {
                   step="1"
                   value={stepsPerSecond}
                   onInput={({target: {value}}) => actions['setStepsPerSecond'](parseInt(value, 10)) & this.setState({stepsPerSecond: parseInt(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Maximum Masses:</td>
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={maximumMasses}
+                  onInput={({target: {value}}) => actions['setMaximumMasses'](parseInt(value, 10)) & this.setState({maximumMasses: parseInt(value, 10)})} />
               </td>
             </tr>
             <tr>
