@@ -97,35 +97,35 @@ function createUniverse(existingMasses) {
   }
 
   return {
-    universe, 
-    inputEvents, 
-    events, 
-    eevents, 
-    uievents, 
-    uuievents, 
-    massPool, 
-    positions, 
-    velocities, 
-    accelerations, 
-    gravities, 
-    masses, 
-    sizes, 
-    colors, 
-    currentTick: 0, 
-    collisionList: [], 
-    tick, 
-    ticksPerStep: 60, 
-    stepsPerSecond: 1, 
-    gravityConstant: 6.67408e-7, 
+    universe,
+    inputEvents,
+    events,
+    eevents,
+    uievents,
+    uuievents,
+    massPool,
+    positions,
+    velocities,
+    accelerations,
+    gravities,
+    masses,
+    sizes,
+    colors,
+    currentTick: 0,
+    collisionList: [],
+    tick,
+    ticksPerStep: 60,
+    stepsPerSecond: 1,
+    gravityConstant: 6.67408e-7,
     speedlimit: 300000,
-    fieldOfView: 120, 
+    fieldOfView: 120,
     maximumMasses: 100,
     eventLog: []};
 }
 
 function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick, maximumMasses}) {
   if (universe.length >= maximumMasses) return undefined;
-  
+
   const {position, velocity, acceleration, gravity, mass, size, color} = newMass;
 
   newMass.created = currentTick;
@@ -374,13 +374,13 @@ const eevents = {
   'maximumMasses': ([_, maximumMasses], state) => {
     state.maximumMasses = maximumMasses;
 
-    const {universe} = state;
+    const {universe, uievents} = state;
 
     if (universe.length > maximumMasses) {
       const over = universe.length - maximumMasses,
             index = universe.length - over,
             {positions, velocities, accelerations, gravities, masses, sizes, colors} = state;
-            
+
       universe.splice(index, over);
       positions.splice(index, over);
       velocities.splice(index, over);
@@ -390,6 +390,8 @@ const eevents = {
       sizes.splice(index, over);
       colors.splice(index, over);
     }
+
+    uievents.push(['maximumMasses']);
   },
   'fov': ([_, fov], state) => state.fieldOfView = fov
 };
@@ -404,6 +406,11 @@ const uuievents = {
    // view.select('#positions').set('width', positions.length);
    // view.select('#colors').set('width', colors.length);
    // view.select('#sizes').set('width', sizes.length);
+  },
+  'maximumMasses': (event, view, {maximumMasses}) => {
+   view.select('#positions').set('width', maximumMasses);
+   view.select('#colors').set('width', maximumMasses);
+   view.select('#sizes').set('width', maximumMasses);
   },
   'log': ([log, ...args]) => console.log('log', ...args)
 };
@@ -422,16 +429,16 @@ class Mass {
 
   delayCreate(mass, color, position, velocity) {
     this.mass = mass;
-    
+
     this.color[0] = color[0];
     this.color[1] = color[1];
     this.color[2] = color[2];
     this.color[3] = color[3];
-  
+
     this.position[0] = position[0];
     this.position[1] = position[1];
     this.position[2] = position[2];
-  
+
     this.velocity[0] = velocity[0];
     this.velocity[1] = velocity[1];
     this.velocity[2] = velocity[2];
