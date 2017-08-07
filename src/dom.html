@@ -57,7 +57,7 @@
         for (let i = eventLog.length - 1; i >= 0; i--) {
           const [time, events] = eventLog[i],
                 bin = Math.floor((time / max) * canvas.width);
-                
+
           currentBin = bin;
           height = 0;
 
@@ -95,7 +95,7 @@
 
     // renderUniverse(simState);
 
-    function renderUniverse({universe, positions, colors, sizes, fieldOfView, MAX_MASSES}) {
+    function renderUniverse({universe, positions, colors, sizes, fieldOfView, maximumMasses}) {
       return render(
         <root>
           <camera proxy={true}
@@ -106,16 +106,16 @@
           <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
                      scale={[1, 1, 1]}>
             <array id="positions"
-                   width={MAX_MASSES}
+                   width={maximumMasses}
                    channels={3}
                    history={1}
                    data={positions} />
             <array id="colors"
-                   width={MAX_MASSES}
+                   width={maximumMasses}
                    channels={4}
                    data={colors} />
             <array id="sizes"
-                   width={MAX_MASSES}
+                   width={maximumMasses}
                    channels={1}
                    data={sizes} />
             <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9} />
@@ -128,7 +128,7 @@
 
     const splashEl = document.querySelector('splash'),
           licensesEl = document.querySelector('licenses');
-    
+
     splashEl.addEventListener('click', splashGiven);
 
     licensesEl.addEventListener('click', event => clearTimeout(splashTimeout) & event.stopPropagation());
@@ -304,8 +304,8 @@
             state.inputEvents.push(['fov', fov]);
             view.select('camera').set('fov', fov)
           },
-          setSaveSystemOnExit: saveOnExit => saveOnExit ? 
-                                      window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) : 
+          setSaveSystemOnExit: saveOnExit => saveOnExit ?
+                                      window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) :
                                       window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined)
         }
       );
