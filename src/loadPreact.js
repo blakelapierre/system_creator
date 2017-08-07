@@ -120,10 +120,11 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    const {gravityConstant, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = props.state;
+    const {gravityConstant, speedlimit, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = props.state;
 
     this.state = {
       gravityConstant,
+      speedlimit,
       ticksPerStep,
       stepsPerSecond,
       fieldOfView,
@@ -132,7 +133,7 @@ class Settings extends Component {
   }
 
   render({state, actions}) {
-    const {gravityConstant, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = this.state;
+    const {gravityConstant, speedlimit, ticksPerStep, stepsPerSecond, fieldOfView, saveOnExit} = this.state;
 
     return (
       <settings>
@@ -146,6 +147,16 @@ class Settings extends Component {
                   value={gravityConstant}
                   step="0.00000001"
                   onInput={({target: {value}}) => actions['setGravityConstant'](parseFloat(value, 10)) & this.setState({gravityConstant: parseFloat(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>Speedlimit:</td>
+              <td>
+                <input
+                  type="number"
+                  value={speedlimit}
+                  step="1"
+                  onInput={({target: {value}}) => actions['setSpeedlimit'](parseFloat(value, 10)) & this.setState({speedlimit: parseFloat(value, 10)})} />
               </td>
             </tr>
             <tr>

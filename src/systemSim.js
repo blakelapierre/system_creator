@@ -117,6 +117,7 @@ function createUniverse(existingMasses) {
     ticksPerStep: 60, 
     stepsPerSecond: 1, 
     gravityConstant: 6.67408e-7, 
+    speedlimit: 300000,
     fieldOfView: 120, 
     MAX_MASSES: 100,
     eventLog: []};
@@ -206,11 +207,11 @@ function tick(state) {
     }
   }
 
-  function updateGravities({universe, collisionList, ticksPerStep, gravityConstant}) {
-    for (let i = 0; i < universe.length; i++) updatePairs(i, universe, collisionList, ticksPerStep, gravityConstant);
+  function updateGravities({universe, collisionList, ticksPerStep, gravityConstant, speedlimit}) {
+    for (let i = 0; i < universe.length; i++) updatePairs(i, universe, collisionList, ticksPerStep, gravityConstant, speedlimit);
   }
 
-  function updatePairs(i, universe, collisionList, ticksPerStep, gravityConstant) {
+  function updatePairs(i, universe, collisionList, ticksPerStep, gravityConstant, speedlimit) {
     const {
       position: p1,
       velocity: v1,
@@ -221,7 +222,7 @@ function tick(state) {
       collisions
     } = universe[i];
 
-    for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions, collisionList, universe, ticksPerStep, gravityConstant); //
+    for (let j = i + 1; j < universe.length; j++) updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions, collisionList, universe, ticksPerStep, gravityConstant, speedlimit); //
 
     if (collisions.length > 0) {
       collisionList.push(collisions[0]);
@@ -233,7 +234,7 @@ function tick(state) {
     div(g1, g1, m1);
   }
 
-  function updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions, collisionList, universe, ticksPerStep, gravityConstant) {
+  function updatePair(p1, v1, a1, g1, m1, s1, i, j, collisions, collisionList, universe, ticksPerStep, gravityConstant, speedlimit) {
     const {
       position: p2,
       velocity: v2,
@@ -361,6 +362,7 @@ const eevents = {
   'poof': poof,
 
   'gravityConstant': ([_, gravityConstant], state) => state.gravityConstant = gravityConstant,
+  'speedlimit': ([_, speedlimit], state) => state.speedlimit = speedlimit,
   'ticksPerStep': ([_, ticksPerStep], state, clock, currentTick, currentTime) => {
     state.ticksPerStep = ticksPerStep;
     clock.setNewStartTime(currentTime, currentTick);
@@ -675,7 +677,6 @@ function qunit(r, q) {
   return qdiv(r, q, qnorm(q));
 }
 
-const speedlimit = 300000;
 const pv1 = [0, 0, 0],
       pv2 = [0, 0, 0],
       oldp1 = [0, 0, 0],
