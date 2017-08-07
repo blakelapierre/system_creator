@@ -119,12 +119,12 @@ function createUniverse(existingMasses) {
     gravityConstant: 6.67408e-7, 
     speedlimit: 300000,
     fieldOfView: 120, 
-    MAX_MASSES: 100,
+    maximumMasses: 100,
     eventLog: []};
 }
 
-function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick, MAX_MASSES}) {
-  if (universe.length >= MAX_MASSES) return undefined;
+function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick, maximumMasses}) {
+  if (universe.length >= maximumMasses) return undefined;
   
   const {position, velocity, acceleration, gravity, mass, size, color} = newMass;
 
@@ -371,7 +371,27 @@ const eevents = {
     state.stepsPerSecond = stepsPerSecond
     clock.setNewStartTime(currentTime, currentTick);
   },
-  'fov': ([_, fov], state) => state.fov = fov
+  'maximumMasses': ([_, maximumMasses], state) => {
+    state.maximumMasses = maximumMasses;
+
+    const {universe} = state;
+
+    if (universe.length > maximumMasses) {
+      const over = universe.length - maximumMasses,
+            index = universe.length - over,
+            {positions, velocities, accelerations, gravities, masses, sizes, colors} = state;
+            
+      universe.splice(index, over);
+      positions.splice(index, over);
+      velocities.splice(index, over);
+      accelerations.splice(index, over);
+      gravities.splice(index, over);
+      masses.splice(index, over);
+      sizes.splice(index, over);
+      colors.splice(index, over);
+    }
+  },
+  'fov': ([_, fov], state) => state.fieldOfView = fov
 };
 
 const uuievents = {
