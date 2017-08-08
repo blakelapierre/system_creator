@@ -65,6 +65,15 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
     events.splice(0);
   }
 
+  function centerOn(mass, universe) {
+    const tp = mass.position.slice();
+
+    for (let i = 0; i < universe.length; i++) {
+      const {position: p} = universe[i];
+      sub(p, p, tp);
+    }
+  }
+
   function defaultHandler(event) {
     console.log(`No eevents ${event[0]}!`)
     return emptyFn;
@@ -72,15 +81,6 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
 
   function emptyFn() {}
 };
-
-function centerOn(mass, universe) {
-  const tp = mass.position.slice();
-
-  for (let i = 0; i < universe.length; i++) {
-    const {position: p} = universe[i];
-    sub(p, p, tp);
-  }
-}
 
 function createUniverse(existingMasses) {
   const universe = [...existingMasses],
