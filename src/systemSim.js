@@ -79,7 +79,6 @@ function centerOn(mass, universe) {
   for (let i = 0; i < universe.length; i++) {
     const {position: p} = universe[i];
     sub(p, p, tp);
-    // sub(p, tp, p);
   }
 }
 
