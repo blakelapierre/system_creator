@@ -20,6 +20,7 @@ class Create extends Component {
     console.log('controls', state, actions);
     return (
       <create>
+        {state.tooManyMasses ? 'TOO MANY MASSES!' : ''}
         <table>
           <tbody>
             <tr>
@@ -310,7 +311,7 @@ class ShareSystem extends Component {
 
   render({system, close}) {
     const url = `${window.location.href}#${compressToEncodedURIComponent(JSON.stringify(system))}`;
-    
+
     return (
       <share-system onClick={close}>
         <full-link onClick={event => event.stopPropagation()}>{url}</full-link>
@@ -334,6 +335,26 @@ class ShareSystem extends Component {
   }
 }
 
+class View extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+
+    };
+  }
+
+  render({state, actions}) {
+    return (
+      <view>
+        <button onClick={actions['prevCameraTarget']}>&lt;</button>
+        <button onClick={actions['nextCameraTarget']}>&gt;</button>
+        <button onClick={actions['targetGreatestMass']}>Greatest Mass</button>
+      </view>
+    );
+  }
+}
+
 class Panel extends Component {
   constructor(props) {
     super(props);
@@ -352,7 +373,7 @@ class Panel extends Component {
           {children.map(({attributes: { header }}, i) =>
             <selector
               className={selected === i ? 'selected' : ''}
-              onClick={() => this.setState({selected: (selected + 1) % children.length})}
+              onClick={() => this.setState({selected: i})}
               >{header}</selector>)}
         </header>
         {children[selected]}
@@ -372,10 +393,13 @@ class UI extends Component {
             actions={actions}
             header="Create" />
           <Settings
-            className={state ? 'selected' : ''}
             state={state}
             actions={actions}
             header="Settings" />
+          <View
+            state={state}
+            actions={actions}
+            header="View" />
         </Panel>
       </ui>
     );
