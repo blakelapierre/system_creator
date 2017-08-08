@@ -325,7 +325,11 @@
             },
             setSaveSystemOnExit: saveOnExit => saveOnExit ?
                                         window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) :
-                                        window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined)
+                                        window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined),
+
+            prevCameraTarget: () => state.inputEvents.push(['prevCameraTarget']),
+            nextCameraTarget: () => state.inputEvents.push(['nextCameraTarget']),
+            targetGreatestMass: () => state.inputEvents.push(['targetGreatestMass'])
           }
         );
       }

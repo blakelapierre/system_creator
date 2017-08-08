@@ -73,6 +73,16 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
   function emptyFn() {}
 };
 
+function centerOn(mass, universe) {
+  const tp = mass.position.slice();
+
+  for (let i = 0; i < universe.length; i++) {
+    const {position: p} = universe[i];
+    sub(p, p, tp);
+    // sub(p, tp, p);
+  }
+}
+
 function createUniverse(existingMasses) {
   const universe = [...existingMasses],
         events = [],
@@ -370,14 +380,6 @@ function getGreatestMass(state) {
   return maxMass;
 }
 
-function centerOn(mass, universe) {
-  const {position: tp} = mass;
-  for (let i = universe.length - 1; i >= 0; i--) {
-    const {position: p} = universe[i];
-    sub(p, p, tp);
-  }
-}
-
 const eevents = {
   // external
   'newmass': newMass,
@@ -418,7 +420,25 @@ const eevents = {
 
     uievents.push(['maximumMasses']);
   },
-  'fov': ([_, fov], state) => state.fieldOfView = fov
+  'fov': ([_, fov], state) => state.fieldOfView = fov,
+
+  nextCameraTarget: (_, state) => {
+    const {universe, currentCameraTarget} = state,
+          {length} = universe,
+          index = (universe.indexOf(currentCameraTarget) + 1) % length;
+
+    state.currentCameraTarget = universe[index];
+    console.log('current target', state.currentCameraTarget);
+  },
+  prevCameraTarget: (_, state) => {
+    const {universe, currentCameraTarget} = state,
+          {length} = universe,
+          index = universe.indexOf(currentCameraTarget);
+
+    state.currentCameraTarget = universe[(index === 0 ? length : index) - 1];
+    console.log('current target', state.currentCameraTarget, index);
+  },
+  targetGreatestMass: (_, state) => state.currentCameraTarget = getGreatestMass(state)
 };
 
 const uuievents = {
