@@ -236,79 +236,7 @@
 
       let stop = false;
 
-      setupUI(
-        document.getElementsByTagName('interface')[0],
-        state,
-        {
-          create: ({position, velocity, mass, color}) => state.inputEvents.push(['newmass', {position: position.slice(), velocity: velocity.slice(), mass, color: color.slice()}]),
-          restart: () => {
-            simState = window.createSim();
-
-            window.universe = simState.universe;
-            window.positions = simState.positions;
-            window.colors = simState.colors;
-            window.sizes = simState.sizes;
-            window.eevents = simState.eevents;
-            window.uuievents = simState.uuievents;
-            window.fieldOfView = simState.fieldOfView;
-
-            view.select('#positions').set('data', positions).set('width', positions.length);
-            view.select('#colors').set('data', colors).set('width', colors.length);
-            // view.select('#velocities').set('data', velocities).set('width', velocities.length);
-            view.select('#sizes').set('data', sizes).set('width', sizes.length);
-
-            view.select('camera').set('fov', fieldOfView);
-
-            start(simState);
-
-            stop = true;
-          },
-          save,
-          load: (system) => {
-            simState = window.createSim();
-
-            window.universe = simState.universe;
-            window.positions = simState.positions;
-            window.colors = simState.colors;
-            window.sizes = simState.sizes;
-            window.eevents = simState.eevents;
-            window.uuievents = simState.uuievents;
-            window.fieldOfView = simState.fieldOfView;
-
-            view.select('#positions').set('data', positions).set('width', positions.length);
-            view.select('#colors').set('data', colors).set('width', colors.length);
-            // view.select('#velocities').set('data', velocities).set('width', velocities.length);
-            view.select('#sizes').set('data', sizes).set('width', sizes.length);
-
-            view.select('camera').set('fov', fieldOfView);
-
-            simState.playback = system;
-
-            start(simState);
-
-            stop = true;
-          },
-          delete: systemIndex => {
-            if (confirm('Are you sure you want to delete?')) {
-              const systems = JSON.parse(localStorage['systems'] || '[]');
-              systems.splice(systemIndex, 1);
-              localStorage['systems'] = JSON.stringify(systems);
-            }
-          },
-          setGravityConstant: gravityConstant => state.inputEvents.push(['gravityConstant', gravityConstant]),
-          setSpeedlimit: speedlimit => state.inputEvents.push(['speedlimit', speedlimit]),
-          setTicksPerStep: ticksPerStep => state.inputEvents.push(['ticksPerStep', ticksPerStep]),
-          setStepsPerSecond: stepsPerSecond => state.inputEvents.push(['stepsPerSecond', stepsPerSecond]),
-          setMaximumMasses: maximumMasses => state.inputEvents.push(['maximumMasses', maximumMasses]),
-          setFieldOfView: fov => {
-            state.inputEvents.push(['fov', fov]);
-            view.select('camera').set('fov', fov)
-          },
-          setSaveSystemOnExit: saveOnExit => saveOnExit ?
-                                      window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) :
-                                      window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined)
-        }
-      );
+      renderUI();
 
       window.requestAnimationFrame(animate);
 
@@ -318,12 +246,88 @@
         for (let i = 0; i < uievents.length; i++) {
           const event = uievents[i];
 
-          (uuievents[event[0]] || (() => {}))(event, view, state);
+          (uuievents[event[0]] || (() => {}))(event, view, state, renderUI);
         }
 
         uievents.splice(0);
 
         if (!stop) window.requestAnimationFrame(animate);
+      }
+
+      function renderUI() {
+        setupUI(
+          document.getElementsByTagName('interface')[0],
+          state,
+          {
+            create: ({position, velocity, mass, color}) => state.inputEvents.push(['newmass', {position: position.slice(), velocity: velocity.slice(), mass, color: color.slice()}]),
+            restart: () => {
+              simState = window.createSim();
+
+              window.universe = simState.universe;
+              window.positions = simState.positions;
+              window.colors = simState.colors;
+              window.sizes = simState.sizes;
+              window.eevents = simState.eevents;
+              window.uuievents = simState.uuievents;
+              window.fieldOfView = simState.fieldOfView;
+
+              view.select('#positions').set('data', positions).set('width', positions.length);
+              view.select('#colors').set('data', colors).set('width', colors.length);
+              // view.select('#velocities').set('data', velocities).set('width', velocities.length);
+              view.select('#sizes').set('data', sizes).set('width', sizes.length);
+
+              view.select('camera').set('fov', fieldOfView);
+
+              start(simState);
+
+              stop = true;
+            },
+            save,
+            load: (system) => {
+              simState = window.createSim();
+
+              window.universe = simState.universe;
+              window.positions = simState.positions;
+              window.colors = simState.colors;
+              window.sizes = simState.sizes;
+              window.eevents = simState.eevents;
+              window.uuievents = simState.uuievents;
+              window.fieldOfView = simState.fieldOfView;
+
+              view.select('#positions').set('data', positions).set('width', positions.length);
+              view.select('#colors').set('data', colors).set('width', colors.length);
+              // view.select('#velocities').set('data', velocities).set('width', velocities.length);
+              view.select('#sizes').set('data', sizes).set('width', sizes.length);
+
+              view.select('camera').set('fov', fieldOfView);
+
+              simState.playback = system;
+
+              start(simState);
+
+              stop = true;
+            },
+            delete: systemIndex => {
+              if (confirm('Are you sure you want to delete?')) {
+                const systems = JSON.parse(localStorage['systems'] || '[]');
+                systems.splice(systemIndex, 1);
+                localStorage['systems'] = JSON.stringify(systems);
+              }
+            },
+            setGravityConstant: gravityConstant => state.inputEvents.push(['gravityConstant', gravityConstant]),
+            setSpeedlimit: speedlimit => state.inputEvents.push(['speedlimit', speedlimit]),
+            setTicksPerStep: ticksPerStep => state.inputEvents.push(['ticksPerStep', ticksPerStep]),
+            setStepsPerSecond: stepsPerSecond => state.inputEvents.push(['stepsPerSecond', stepsPerSecond]),
+            setMaximumMasses: maximumMasses => state.inputEvents.push(['maximumMasses', maximumMasses]),
+            setFieldOfView: fov => {
+              state.inputEvents.push(['fov', fov]);
+              view.select('camera').set('fov', fov)
+            },
+            setSaveSystemOnExit: saveOnExit => saveOnExit ?
+                                        window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) :
+                                        window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined)
+          }
+        );
       }
     }
   </script>

@@ -19,7 +19,7 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
       currentTick++;
     }
 
-    centerOn(state.universe[0], state.universe);
+    centerOn(state.currentCameraTarget, state.universe);
   }
 
   function runnerWithPlayback(playback) {
@@ -39,8 +39,8 @@ window.createRunner = (state, clock = new Clock(state), maxRunTime = 1000 / 30, 
         currentTick++;
       }
 
-      centerOn(state.universe[0], state.universe);
-    }
+      centerOn(state.currentCameraTarget, state.universe);
+    };
   }
 
   function handleEvents(state) {
@@ -111,6 +111,7 @@ function createUniverse(existingMasses) {
     masses,
     sizes,
     colors,
+    currentCameraTarget: universe[0],
     currentTick: 0,
     collisionList: [],
     tick,
@@ -124,7 +125,10 @@ function createUniverse(existingMasses) {
 }
 
 function addMass(newMass, {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, uievents, currentTick, maximumMasses}) {
-  if (universe.length >= maximumMasses) return undefined;
+  if (universe.length >= maximumMasses) {
+    uievents.push(['tooManyMasses']);
+    return undefined;
+  }
 
   const {position, velocity, acceleration, gravity, mass, size, color} = newMass;
 
@@ -301,7 +305,9 @@ function tick(state) {
     mass.positionHalfTick(ticksPerStep);
   }
 
-  function resolveCollisions({universe, positions, velocities, accelerations, gravities, masses, sizes, colors, events, collisionList}) {
+  function resolveCollisions(state) {
+    const {universe, positions, velocities, accelerations, gravities, masses, sizes, colors, events, collisionList, currentCameraTarget} = state;
+
     for (let i = collisionList.length - 1; i >= 0; i--) {
       const [smallerMass, greaterMass] = collisionList[i];
 
@@ -327,7 +333,7 @@ function tick(state) {
 
       incrementStat(smallerMass.constructor.name, 'absorbedBy', greaterMass.constructor.name);
 
-      events.push(['absorbed', smallerMass.name, greaterMass.name]);
+      events.push(['absorbed', smallerMass, greaterMass]);
 
       sizes[greaterIndex] = greaterMass.size;
 
@@ -339,10 +345,29 @@ function tick(state) {
       masses.splice(smallerIndex, 1);
       sizes.splice(smallerIndex, 1);
       colors.splice(smallerIndex, 1);
+
+      if (smallerMass === currentCameraTarget) state.currentCameraTarget = getGreatestMass(state); // eww!
     }
 
     collisionList.splice(0);
   }
+}
+
+function getGreatestMass(state) {
+  const {universe} = state;
+
+  let max = 0, maxMass;
+
+  for (let i = 0; i < universe.length; i++) {
+    const mass = universe[i];
+
+    if (mass.mass > max) {
+      max = mass.mass;
+      maxMass = mass;
+    }
+  }
+
+  return maxMass;
 }
 
 function centerOn(mass, universe) {
@@ -411,6 +436,10 @@ const uuievents = {
    view.select('#positions').set('width', maximumMasses);
    view.select('#colors').set('width', maximumMasses);
    view.select('#sizes').set('width', maximumMasses);
+  },
+  'tooManyMasses': (event, view, state, renderUI) => {
+    state.tooManyMasses = true;
+    // renderUI();
   },
   'log': ([log, ...args]) => console.log('log', ...args)
 };

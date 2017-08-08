@@ -20,6 +20,7 @@ class Create extends Component {
     console.log('controls', state, actions);
     return (
       <create>
+        {state.tooManyMasses ? 'TOO MANY MASSES!' : ''}
         <table>
           <tbody>
             <tr>
@@ -310,7 +311,7 @@ class ShareSystem extends Component {
 
   render({system, close}) {
     const url = `${window.location.href}#${compressToEncodedURIComponent(JSON.stringify(system))}`;
-    
+
     return (
       <share-system onClick={close}>
         <full-link onClick={event => event.stopPropagation()}>{url}</full-link>
