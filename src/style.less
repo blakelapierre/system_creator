@@ -1141,7 +1141,7 @@ controls {
   }
 }
 
-panel {
+.panel {
   position: fixed;
 
   bottom: 0;
@@ -1207,6 +1207,18 @@ panel {
   }
 }
 
+multi-create {
+  input {
+    width: 3em;
+
+    text-align: right;
+
+    &.total-mass {
+      width: 9em;
+    }
+  }
+}
+
 clock {
   color: #fff;
 
@@ -1225,10 +1237,15 @@ number-with-exponent {
 
 view {
   display: flex;
+  flex-direction: column;
 
-  justify-content: center;
+  camera-target {
+    display: flex;
 
-  button {
-    margin: 0 0.25em;
+    justify-content: center;
+
+    button {
+      margin: 0 0.25em;
+    }
   }
 }

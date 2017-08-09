@@ -130,6 +130,7 @@ function createUniverse(existingMasses) {
     speedlimit: 300000,
     fieldOfView: 120,
     maximumMasses: 100,
+    positionHistory: 1,
     eventLog: []};
 }
 
@@ -160,7 +161,6 @@ function addMass(newMass, {universe, positions, velocities, accelerations, gravi
 function newMass([_, {position: p, velocity: v, mass, color}], state) {
   const {position: tp, velocity: tv} = state.universe[0] || {position: [0, 0, 0], velocity: [0, 0, 0]},
         newMass = addMass(getNewMass(state, mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]), state);
-  //const newMass = addMass(new Mass(mass, color.slice(), [tp[0] + p[0], tp[1] + p[1], tp[2] + p[2]], [tv[0] + v[0], tv[1] + v[1], tv[2] + v[2]]));
 
   setStat('masses', state.universe.length);
 }
@@ -420,7 +420,7 @@ const eevents = {
     uievents.push(['maximumMasses']);
   },
   'fov': ([_, fov], state) => state.fieldOfView = fov,
-
+  'positionHistory': ([_, positionHistory], state) => state.positionHistory = positionHistory,
   nextCameraTarget: (_, state) => {
     const {universe, currentCameraTarget} = state,
           {length} = universe,

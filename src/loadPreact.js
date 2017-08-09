@@ -2,7 +2,140 @@ import { h, render, Component } from 'preact';
 
 import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
 
+
 class Create extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render({state, actions}) {
+    return (
+      <Panel>
+        <SingleCreate
+          state={state}
+          actions={actions}
+          header="Single" />
+        <MultiCreate
+          state={state}
+          actions={actions}
+          header="Multi" />
+      </Panel>
+    );
+  }
+}
+
+class MultiCreate extends Component {
+  constructor(props) {
+    super(props);
+console.log('constructing multi-create');
+    this.state = {
+      position: [0, 0, 0],
+      dimensions: [25, 25, 25],
+      massCount: 100,
+      totalMass: 10e5
+    };
+  }
+
+  render({state, actions}) {
+    return (
+      <multi-create>
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                Position:
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.position[0]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({position}) =>
+                                position[0] = parseFloat(value, 10)
+                              )} />
+                <input
+                  type="number"
+                  value={this.state.position[1]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({position}) =>
+                                position[1] = parseFloat(value, 10)
+                              )} />
+                <input
+                  type="number"
+                  value={this.state.position[2]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({position}) =>
+                                position[2] = parseFloat(value, 10)
+                              )} />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Dimensions:
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={this.state.dimensions[0]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({dimensions}) =>
+                                dimensions[0] = parseFloat(value, 10)
+                              )} />
+                <input
+                  type="number"
+                  value={this.state.dimensions[1]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({dimensions}) =>
+                                dimensions[1] = parseFloat(value, 10)
+                              )} />
+                <input
+                  type="number"
+                  value={this.state.dimensions[2]}
+                  onChange={({target: {value}}) =>
+                              this.setState(({dimensions}) =>
+                                dimensions[2] = parseFloat(value, 10)
+                              )} />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Mass Count:
+              </td>
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  max={this.state.maximumMasses}
+                  value={this.state.massCount}
+                  onChange={({target: {value}}) =>
+                              this.setState({massCount: parseFloat(value, 10)})} />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Total Mass:
+              </td>
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  step="1000"
+                  value={this.state.totalMass}
+                  className="total-mass"
+                  onChange={({target: {value}}) =>
+                              this.setState({totalMass: parseFloat(value, 10)})} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button onClick={() => actions['multi-create'](this.state)}>Create</button>
+      </multi-create>
+    );
+  }
+}
+
+class SingleCreate extends Component {
   constructor(props) {
     super(props);
 
@@ -347,9 +480,19 @@ class View extends Component {
   render({state, actions}) {
     return (
       <view>
-        <button onClick={actions['prevCameraTarget']}>&lt;</button>
-        <button onClick={actions['nextCameraTarget']}>&gt;</button>
-        <button onClick={actions['targetGreatestMass']}>Greatest Mass</button>
+        <table>
+          <tbody>
+            <tr>
+              <td>Position History:</td>
+              <td><input type="number" disabled="disabled" value={state.positionHistory} onClick={({target: {value}}) => actions['setPositionHistory'](value)} /></td>
+            </tr>
+          </tbody>
+        </table>
+        <camera-target>
+          <button onClick={actions['prevCameraTarget']}>&lt;</button>
+          <button onClick={actions['nextCameraTarget']}>&gt;</button>
+          <button onClick={actions['targetGreatestMass']}>Greatest Mass</button>
+        </camera-target>
       </view>
     );
   }
@@ -364,11 +507,10 @@ class Panel extends Component {
     };
   }
 
-  render({state, actions, children}) {
-    console.log('children', children);
+  render({state, actions, children, className}) {
     const {selected} = this.state;
     return (
-      <panel>
+      <panel className={className}>
         <header>
           {children.map(({attributes: { header }}, i) =>
             <selector
@@ -387,7 +529,7 @@ class UI extends Component {
     return (
       <ui>
         <Controls state={state} actions={actions} />
-        <Panel>
+        <Panel className="panel">
           <Create
             state={state}
             actions={actions}

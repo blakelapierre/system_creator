@@ -95,7 +95,7 @@
 
     // renderUniverse(simState);
 
-    function renderUniverse({universe, positions, colors, sizes, fieldOfView, maximumMasses}) {
+    function renderUniverse({universe, positions, colors, sizes, fieldOfView, maximumMasses, positionHistory}) {
       return render(
         <root>
           <camera proxy={true}
@@ -108,7 +108,7 @@
             <array id="positions"
                    width={maximumMasses}
                    channels={3}
-                   history={1}
+                   history={positionHistory}
                    data={positions} />
             <array id="colors"
                    width={maximumMasses}
@@ -260,6 +260,25 @@
           state,
           {
             create: ({position, velocity, mass, color}) => state.inputEvents.push(['newmass', {position: position.slice(), velocity: velocity.slice(), mass, color: color.slice()}]),
+            'multi-create': ({position: p, dimensions: d, massCount, totalMass}) => {
+              let massRemaining = totalMass;
+              for (let i = 0; i < massCount - 1; i++) {
+                const mass = Math.random() * massRemaining,
+                      color = [Math.random() * 2, Math.random() * 2, Math.random() * 2, 0.95],
+                      position = [p[0] + (0.5 - Math.random()) * d[0], p[1] + (0.5 - Math.random()) * d[1], p[2] + (0.5 - Math.random()) * d[2]],
+                      velocity = [(0.5 - Math.random()) * d[0] / 10, (0.5 - Math.random()) * d[1] / 10, (0.5 - Math.random()) * d[2] / 10];
+
+                state.inputEvents.push(['newmass', {position, velocity, mass, color}]);
+
+                massRemaining -= mass;
+              }
+
+              const color = [Math.random() * 2, Math.random() * 2, Math.random() * 2, 0.95],
+                    position = [p[0] + (0.5 - Math.random()) * d[0], p[1] + (0.5 - Math.random()) * d[1], p[2] + (0.5 - Math.random()) * d[2]],
+                    velocity = [(0.5 - Math.random()) * d[0] / 10, (0.5 - Math.random()) * d[1] / 10, (0.5 - Math.random()) * d[2] / 10];
+
+              state.inputEvents.push(['newmass', {position, velocity, mass: massRemaining, color}]);
+            },
             restart: () => {
               simState = window.createSim();
 
@@ -326,10 +345,13 @@
             setSaveSystemOnExit: saveOnExit => saveOnExit ?
                                         window.addEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'true' : undefined) :
                                         window.removeEventListener('beforeunload', save) & (localStorage ? localStorage['saveOnExit'] = 'false' : undefined),
-
-            prevCameraTarget: () => state.inputEvents.push(['prevCameraTarget']),
-            nextCameraTarget: () => state.inputEvents.push(['nextCameraTarget']),
-            targetGreatestMass: () => state.inputEvents.push(['targetGreatestMass'])
+            setPositionHistory: positionHistory => {
+              state.inputEvents.push(['positionHistory']), // should this really be an input event?
+              view.select('#positions').set('history', positionHistory); // doesn't work
+            },
+            prevCameraTarget: () => state.inputEvents.push(['prevCameraTarget']), // should this really be an input event?
+            nextCameraTarget: () => state.inputEvents.push(['nextCameraTarget']), // should this really be an input event?
+            targetGreatestMass: () => state.inputEvents.push(['targetGreatestMass']) // should this really be an input event?
           }
         );
       }
