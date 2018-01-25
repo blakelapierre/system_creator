@@ -129,8 +129,8 @@ function createUniverse(existingMasses) {
     gravityConstant: 6.67408e-7,
     speedlimit: 300000,
     fieldOfView: 120,
-    maximumMasses: 100,
-    positionHistory: 1,
+    maximumMasses: 200,
+    positionHistory: 0,
     eventLog: []};
 }
 
@@ -263,12 +263,12 @@ function tick(state) {
           t = -distance / (speedlimit * speedlimit),
           o = t / ticksPerStep;
 
-    updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m1 * m2, gravityConstant);
+    updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m1 * m2 * gravityConstant);
 
     handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions, universe);
   }
 
-  function updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, m, gravityConstant) {
+  function updatePositionAndGravity(o, a1, a2, v1, v2, p1, p2, g1, g2, gravityScalar) {
     updatePosition(oldp1, o, a1, v1, p1);
     updatePosition(oldp2, o, a2, v2, p2);
 
@@ -278,16 +278,16 @@ function tick(state) {
     const d1 = dot(pv1, pv1),
           d2 = dot(pv2, pv2);
 
-    updateGravity(d1, pv1, g2, m, gravityConstant);
-    updateGravity(d2, pv2, g1, m, gravityConstant);
+    updateGravity(d1, pv1, g2, gravityScalar);
+    updateGravity(d2, pv2, g1, gravityScalar);
   }
 
   function updatePosition(oldp, o, a, v, p) {
     return add(oldp, p, scale(dd, add(dd, v, scale(dd, add(dd, v, scale(dd, a, o)), 0.5)), o));
   }
 
-  function updateGravity(d, pv, g, m, gravityConstant) {
-    if (d > 0) add(g, g, scale(dd, pv, gravityConstant * m / d));
+  function updateGravity(d, pv, g, gravityScalar) {
+    if (d > 0) add(g, g, scale(dd, pv, gravityScalar / d));
   }
 
   function handleCollision(s1, s2, m1, m2, distance, i, j, collisionList, collisions, universe) {
@@ -322,11 +322,10 @@ function tick(state) {
 
       greaterMass.mass += smallerMass.mass;
 
-      const ratio = smallerMass.mass / greaterMass.mass; // 0?
+      const ratio = smallerMass.mass / greaterMass.mass, // 0?
+            factor = 1 - ratio;
 
-      greaterMass.color[0] = (1 - ratio) * greaterMass.color[0] + ratio * smallerMass.color[0];
-      greaterMass.color[1] = (1 - ratio) * greaterMass.color[1] + ratio * smallerMass.color[1];
-      greaterMass.color[2] = (1 - ratio) * greaterMass.color[2] + ratio * smallerMass.color[2];
+      add(greaterMass.color, scale(greaterMass.color, greaterMass.color, factor), scale(smallerMass.color, smallerMass.color, ratio));
 
       div(greaterMass.velocity,
         add(greaterMass.velocity,

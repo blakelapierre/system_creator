@@ -31,8 +31,8 @@ console.log('constructing multi-create');
     this.state = {
       position: [0, 0, 0],
       dimensions: [25, 25, 25],
-      massCount: 100,
-      totalMass: 10e5
+      massCount: 200,
+      totalMass: 10e6
     };
   }
 
@@ -484,7 +484,7 @@ class View extends Component {
           <tbody>
             <tr>
               <td>Position History:</td>
-              <td><input type="number" disabled="disabled" value={state.positionHistory} onClick={({target: {value}}) => actions['setPositionHistory'](value)} /></td>
+              <td><input type="number" disabled value={state.positionHistory} onClick={({target: {value}}) => actions['setPositionHistory'](value)} /></td>
             </tr>
           </tbody>
         </table>

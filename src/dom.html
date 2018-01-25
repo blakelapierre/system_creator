@@ -108,21 +108,74 @@
             <array id="positions"
                    width={maximumMasses}
                    channels={3}
-                   history={positionHistory}
                    data={positions} />
+
             <array id="colors"
                    width={maximumMasses}
                    channels={4}
                    data={colors} />
+
             <array id="sizes"
                    width={maximumMasses}
                    channels={1}
+                   history={positionHistory}
                    data={sizes} />
-            <point points="<<<" colors="<<" sizes="<" shape="circle" blending="mult" opacity={0.9} />
+
+            <point points="#positions" colors="#colors" sizes="#sizes" shape="circle" blending="mult" opacity={0.9} />
+
           </cartesian>
         </root>
       );
+      // return render(
+      //   <root>
+      //     <camera proxy={true}
+      //             position={[0, 5, 0]}
+      //             lookAt={[0, 0, 0]}
+      //             fov={fieldOfView}
+      //             up={[0, 1, 0]} />
+      //     <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]}
+      //                scale={[1, 1, 1]}>
+      //       <array id="positions"
+      //              width={maximumMasses}
+      //              channels={3}
+      //              history={positionHistory}
+      //              data={positions} />
+
+      //       <slice id="headPosition"
+      //              width={[0, maximumMasses - 1]}
+      //              height={[0, 1]} />
+      //       <slice id="historyPositions"
+      //              source="#positions"
+      //              width={[0, maximumMasses - 1]}
+      //              items={[1, positionHistory - 1]} />
+
+      //       <array id="colors"
+      //              width={maximumMasses}
+      //              channels={4}
+      //              data={colors} />
+
+      //       <array id="sizes"
+      //              width={maximumMasses}
+      //              channels={1}
+      //              history={positionHistory}
+      //              data={sizes} />
+
+      //       <slice width={[0, maximumMasses - 1]}
+      //              height={[1, positionHistory - 1]} />
+
+      //       <grow id="sizeHistory"
+      //             scale={0.1} />
+
+
+      //       <point points="#historyPosition" colors="#colors" sizes="#sizes" shape="circle" blending="mult" opacity={0.9} />
+      //       <point points="#headPosition" colors="#colors" sizes="#sizes" shape="circle" blending="mult" opacity={0.9} />
+
+      //     </cartesian>
+      //   </root>
+      // );
     }
+
+    // <point points="#historyPositions" colors="#colors" size={0.01} shape="circle" blending="mult" opacity={0.9} />
 
     let given, needsStart;
 
@@ -348,6 +401,8 @@
             setPositionHistory: positionHistory => {
               state.inputEvents.push(['positionHistory']), // should this really be an input event?
               view.select('#positions').set('history', positionHistory); // doesn't work
+              simState.positionHistory = positionHistory;
+              renderUniverse(simState);
             },
             prevCameraTarget: () => state.inputEvents.push(['prevCameraTarget']), // should this really be an input event?
             nextCameraTarget: () => state.inputEvents.push(['nextCameraTarget']), // should this really be an input event?
